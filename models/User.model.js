@@ -32,6 +32,7 @@ const userSchema = new mongoose.Schema({
     },
     avatar:{
         type:String,
+        default: "https://i.pinimg.com/736x/99/cc/be/99ccbe55629e4148de5f41d50fe6a028.jpg"
     },
     role:{
         type:String,
