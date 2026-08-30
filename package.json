@@ -11,10 +11,12 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongodb": "^7.6.0",
-    "mongoose": "^9.9.4"
+    "mongoose": "^9.9.4",
+    "validator": "^13.15.35"
   }
 }
