@@ -13,19 +13,14 @@ const otpSchema = new mongoose.Schema({
     },
     expiresAt: {
         type: Date,
-        required: true,
-        expires: 0
+        required: true
     },
     userData: {
-        name: {
-            type: String,
-            trim: true
-        },
-        age: {
-            type: Number,
-            min: 0
-        }
+        type : object ,
+        default : null
     }
-});
+} ,
+    {timestamps: true}                                  
+)
 
 module.exports = mongoose.model("OTP", otpSchema);
