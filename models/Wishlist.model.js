@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose" ;
 
 const wishlistSchema = new mongoose.Schema(
     {
@@ -24,4 +24,6 @@ wishlistSchema.pre(/^find/, function (next) {
     next();
 });
 
-module.exports = mongoose.model("Wishlist", wishlistSchema);
+const Wishlist = mongoose.model("Wishlist", wishlistSchema)
+
+export default Wishlist ;
