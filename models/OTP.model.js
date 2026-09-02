@@ -16,7 +16,7 @@ const otpSchema = new mongoose.Schema({
         required: true
     },
     userData: {
-        type : object ,
+        type : Object ,
         default : null
     }
 } ,
