@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
-const validator = require("validator")
-const bcrypt = require("bcrypt")
+import mongoose from "mongoose";
+import validator from "validator"
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
     username:{
@@ -25,9 +25,18 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:[true , "password is required"],
         select:false,
+        validate(value)
+        {
+            let password = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])");
+            if(!password.test(value))
+            {
+                throw new Error("Password must include uppercase , lowercase , numbers , speacial characters")
+            }
+        }
     },
     phone:{
         type:String,
+        trim:true ,
         default:"",
     },
     avatar:{
@@ -84,4 +93,4 @@ userSchema.methods.comparePassword= async function (enteredPassword) {
 
 const User = mongoose.model('User', userSchema);
 
-module.exports = User;
+export default User;
