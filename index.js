@@ -1,6 +1,6 @@
-import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
+import express from "express";
 import "./DB/mongoose.js";
 import dns from "dns"
 
@@ -15,12 +15,13 @@ dns.setServers(["8.8.8.8" , "8.8.4.4"]);
 app.set("trust proxy" , 1);
 
 import forgotPasswordRouter from "./routes/forgotPassword.routes.js"; 
+import authRoutes from "./routes/authRoutes.js";
 /*
 هاتلي الـ default export من الملف ده، وأنا هسميه عندي في الملف الحالي forgotPasswordRouter.
 */
 
 app.use("/auth", forgotPasswordRouter);
-app.use('/auth/sendOtp', authRoutes);
+app.use('/auth', authRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
