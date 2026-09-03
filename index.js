@@ -1,17 +1,27 @@
-import 'dotenv/config'; // بديل require('dotenv').config()
-import './DB/mongoose.js'; // لازم تكمل امتداد .js في النهاية
-import express from 'express';
-import authRoutes from './routes/authRoutes.js';
+import express from "express";
+import dotenv from "dotenv";
+dotenv.config();
+import "./DB/mongoose.js";
+import dns from "dns"
 
 const app = express();
 
-// Middleware لقراءة الـ JSON
 app.use(express.json());
 
-// Routes
-app.use('/api/v1/auth', authRoutes);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
+
+dns.setServers(["8.8.8.8" , "8.8.4.4"]);
+app.set("trust proxy" , 1);
+
+import forgotPasswordRouter from "./routes/forgotPassword.routes.js"; 
+/*
+هاتلي الـ default export من الملف ده، وأنا هسميه عندي في الملف الحالي forgotPasswordRouter.
+*/
+
+app.use("/auth", forgotPasswordRouter);
+app.use('/auth/sendOtp', authRoutes);
+
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
