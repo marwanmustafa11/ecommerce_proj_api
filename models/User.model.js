@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose" ;
 import validator from "validator"
-import bcrypt from "bcrypt";
+import bcrypt from "bcrypt"
 
 const userSchema = new mongoose.Schema({
     username:{
@@ -91,5 +91,4 @@ userSchema.methods.comparePassword= async function (enteredPassword) {
 
 
 const User = mongoose.model('User', userSchema);
-
 export default User;

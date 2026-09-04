@@ -1,4 +1,3 @@
-import Joi from "joi";
 import { sendForgotPasswordOtpSchema , verifyForgotPasswordOtpSchema } from "../validation/forgotPassword.validation.js";
 const validateSendForgotPasswordOtp = (req, res, next) =>
 {
@@ -23,19 +22,38 @@ const validateSendForgotPasswordOtp = (req, res, next) =>
 
 const validateVerifyForgotPasswordOtp = (req, res, next) =>
 {
-    const { error } = verifyForgotPasswordOtpSchema.validate(req.body);
+    const { error } = verifyForgotPasswordOtpSchema.validate(req.body , { abortEarly: false });
     if (error)
     {
+        const errorMessages = error.details.map((detail) => detail.message);
         return res.status(400).json({
             success: false,
-            message: error.details[0].message
+            message: errorMessages
         });
     }
     next();
 }
+        
+const validateRegister = (schema) => {
+  return (req, res, next) => {
+    const { error } = schema.validate(req.body, { abortEarly: false });
+
+    if (error) {
+      const errorMessages = error.details.map((detail) => detail.message);
+      return res.status(400).json({
+        status: "fail",
+        message: "Validation errors in data",
+        errors: errorMessages
+      });
+    }
+
+    next();
+  };
+};
 
 
 export {
     validateSendForgotPasswordOtp,
-    validateVerifyForgotPasswordOtp
+    validateVerifyForgotPasswordOtp,
+    validateRegister
 };
