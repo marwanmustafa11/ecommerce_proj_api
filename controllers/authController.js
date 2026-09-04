@@ -11,7 +11,7 @@ export const register = async (req, res) => {
     if (!username || !email || !password) {
       return res.status(400).json({ 
         status: 'fail',
-        message: 'جميع الحقول الأساسية مطلوب إدخالها' 
+        message: 'All required fields must be filled in.' 
       });
     }
 
@@ -19,7 +19,7 @@ export const register = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ 
         status: 'fail',
-        message: 'البريد الإلكتروني مسجل بالفعل، يرجى تسجيل الدخول' 
+        message: 'Email is already registered, please log in' 
       });
     }
 
@@ -39,20 +39,20 @@ export const register = async (req, res) => {
       }
     });
  
-const subject = 'رمز تفعيل الحساب (OTP)';
-    const textMessage = `كود التحقق الخاص بك هو: ${otpCode}`;
+const subject = 'Account Activation OTP';
+    const textMessage = `Your verification code is: ${otpCode}`;
 
     await sendEmail(email, subject, textMessage);
     return res.status(200).json({
       status: 'success',
-      message: 'تم إنشاء كود التحقق وإرساله إلى البريد الإلكتروني بنجاح'
+      message: 'Verification code created and sent to your email address successfully'
     });
 
   } catch (error) {
     console.error('Register Error:', error);
     return res.status(500).json({
       status: 'error',
-      message: 'حدث خطأ في السيرفر أثناء إرسال كود التحقق',
+      message: 'An error occurred on the server while sending the verification code',
       error: error.message
     });
   }
