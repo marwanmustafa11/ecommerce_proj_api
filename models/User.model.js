@@ -27,8 +27,8 @@ const userSchema = new mongoose.Schema({
         select:false,
         validate(value)
         {
-            let password = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])");
-            if(!password.test(value))
+            let passwordRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
+            if(!passwordRegex.test(value))
             {
                 throw new Error("Password must include uppercase , lowercase , numbers , speacial characters")
             }
@@ -49,12 +49,11 @@ const userSchema = new mongoose.Schema({
         default:"customer"
     },
     addresses:[{
-        street:String,
-        city:String,
-        state:String,
-        postalCode:String,
         country:String,
-
+        city:String,
+        street:String,
+        building:String,
+        postalCode:String,
     }],
     wishlist:[{
         type:mongoose.Schema.Types.ObjectId,
@@ -81,7 +80,7 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save' , async function (next) {
     
     if (!this.isModified('password')) return next(); // لو التعديل في حاجه تانيه غير الباسوورد اخرج متعملش تشفير
-    this.password = await bcrypt.hash(this.password,8)
+    this.password = await bcrypt.hash(this.password, 10);
     next()
 })
 

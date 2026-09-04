@@ -3,6 +3,7 @@ dotenv.config();
 import express from "express";
 import "./DB/mongoose.js";
 import dns from "dns"
+import loginRouter from "./routes/login.routes.js";
 
 const app = express();
 
@@ -20,6 +21,7 @@ import authRoutes from "./routes/authRoutes.js";
 هاتلي الـ default export من الملف ده، وأنا هسميه عندي في الملف الحالي forgotPasswordRouter.
 */
 
+app.use("/auth", loginRouter);
 app.use("/auth", forgotPasswordRouter);
 app.use('/auth', authRoutes);
 
