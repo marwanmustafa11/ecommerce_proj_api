@@ -1,4 +1,5 @@
 import { sendForgotPasswordOtpSchema , verifyForgotPasswordOtpSchema } from "../validation/forgotPassword.validation.js";
+import { registerSchema } from "../validation/auth.validation.js";
 const validateSendForgotPasswordOtp = (req, res, next) =>
 {
     const { error } = sendForgotPasswordOtpSchema.validate(req.body);
@@ -34,9 +35,8 @@ const validateVerifyForgotPasswordOtp = (req, res, next) =>
     next();
 }
         
-const validateRegister = (schema) => {
-  return (req, res, next) => {
-    const { error } = schema.validate(req.body, { abortEarly: false });
+const validateRegister = (req, res, next) => {
+  const { error } = registerSchema.validate(req.body, { abortEarly: false });
 
     if (error) {
       const errorMessages = error.details.map((detail) => detail.message);
@@ -49,7 +49,6 @@ const validateRegister = (schema) => {
 
     next();
   };
-};
 
 
 export {
