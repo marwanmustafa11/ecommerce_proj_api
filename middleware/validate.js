@@ -1,40 +1,46 @@
-import { sendForgotPasswordOtpSchema , verifyForgotPasswordOtpSchema } from "../validation/forgotPassword.validation.js";
-import { registerSchema } from "../validation/auth.validation.js";
-const validateSendForgotPasswordOtp = (req, res, next) =>
-{
+import {
+    sendForgotPasswordOtpSchema,
+    verifyForgotPasswordOtpSchema
+} from "../validation/forgotPassword.validation.js";
+
+import {
+    verifyOtpSchema, 
+    registerSchema
+} from "../validation/auth.validation.js";
+
+const validateSendForgotPasswordOtp = (req, res, next) => {
     const { error } = sendForgotPasswordOtpSchema.validate(req.body);
-    /*
-    sendForgotPasswordOtpSchema.validate(req.body)
-    دي بترجع object شكله ازاي
-    {
-        error: null,
-        value: {email: "john@example.com"}
-    }
-    */
-    if (error)
-    {
+
+    if (error) {
         return res.status(400).json({
             success: false,
             message: error.details[0].message
-        })
+        });
     }
-    next();
-}
 
-const validateVerifyForgotPasswordOtp = (req, res, next) =>
-{
-    const { error } = verifyForgotPasswordOtpSchema.validate(req.body , { abortEarly: false });
-    if (error)
-    {
-        const errorMessages = error.details.map((detail) => detail.message);
+    next();
+};
+
+const validateVerifyForgotPasswordOtp = (req, res, next) => {
+    const { error } = verifyForgotPasswordOtpSchema.validate(
+        req.body,
+        { abortEarly: false }
+    );
+
+    if (error) {
+        const errorMessages = error.details.map(
+            (detail) => detail.message
+        );
+
         return res.status(400).json({
             success: false,
             message: errorMessages
         });
     }
+
     next();
-}
-        
+};
+
 const validateRegister = (req, res, next) => {
   const { error } = registerSchema.validate(req.body, { abortEarly: false });
 
@@ -50,9 +56,30 @@ const validateRegister = (req, res, next) => {
     next();
   };
 
+const validateVerifyOtp = (req, res, next) => {
+    const { error } = verifyOtpSchema.validate(
+        req.body,
+        { abortEarly: false }
+    );
+
+    if (error) {
+        const errorMessages = error.details.map(
+            (detail) => detail.message
+        );
+
+        return res.status(400).json({
+            status: "fail",
+            message: "Validation errors in data",
+            errors: errorMessages
+        });
+    }
+
+    next();
+};
 
 export {
     validateSendForgotPasswordOtp,
     validateVerifyForgotPasswordOtp,
-    validateRegister
+    validateRegister,
+    validateVerifyOtp
 };
