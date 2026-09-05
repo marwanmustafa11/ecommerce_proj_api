@@ -15,12 +15,23 @@ dns.setServers(["8.8.8.8" , "8.8.4.4"]);
 app.set("trust proxy" , 1);
 
 import forgotPasswordRouter from "./routes/forgotPassword.routes.js"; 
+<<<<<<< Updated upstream
+=======
+import authRoutes from "./routes/authRoutes.js";
+import verifyOtpRouter from "./routes/verifyOtp.routes.js";
+
+>>>>>>> Stashed changes
 /*
 هاتلي الـ default export من الملف ده، وأنا هسميه عندي في الملف الحالي forgotPasswordRouter.
 */
 
 app.use("/auth", forgotPasswordRouter);
+<<<<<<< Updated upstream
 
+=======
+app.use('/auth', authRoutes);
+app.use("/auth", verifyOtpRouter);
+>>>>>>> Stashed changes
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
