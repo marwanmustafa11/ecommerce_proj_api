@@ -3,7 +3,10 @@ import {
     verifyForgotPasswordOtpSchema
 } from "../validation/forgotPassword.validation.js";
 
-import { verifyOtpSchema } from "../validation/auth.validation.js";
+import {
+    verifyOtpSchema, 
+    registerSchema
+} from "../validation/auth.validation.js";
 
 const validateSendForgotPasswordOtp = (req, res, next) => {
     const { error } = sendForgotPasswordOtpSchema.validate(req.body);
