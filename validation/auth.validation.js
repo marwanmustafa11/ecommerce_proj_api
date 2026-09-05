@@ -14,6 +14,7 @@ export const registerSchema = Joi.object({
     "any.required": "Password is required"
   }),
   phone: Joi.string().optional()
+
 });
 export const verifyOtpSchema=Joi.object({
     email:Joi.string().email().required().messages({
@@ -24,4 +25,5 @@ export const verifyOtpSchema=Joi.object({
             "string.pattern.base": "Otp must be 6 digits",
             "any.required":"Otp required"
     })
-})
+});
+
