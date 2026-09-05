@@ -41,28 +41,20 @@ const validateVerifyForgotPasswordOtp = (req, res, next) => {
     next();
 };
 
-const validateRegister = (schema) => {
-    return (req, res, next) => {
-        const { error } = schema.validate(
-            req.body,
-            { abortEarly: false }
-        );
+const validateRegister = (req, res, next) => {
+  const { error } = registerSchema.validate(req.body, { abortEarly: false });
 
-        if (error) {
-            const errorMessages = error.details.map(
-                (detail) => detail.message
-            );
+    if (error) {
+      const errorMessages = error.details.map((detail) => detail.message);
+      return res.status(400).json({
+        status: "fail",
+        message: "Validation errors in data",
+        errors: errorMessages
+      });
+    }
 
-            return res.status(400).json({
-                status: "fail",
-                message: "Validation errors in data",
-                errors: errorMessages
-            });
-        }
-
-        next();
-    };
-};
+    next();
+  };
 
 const validateVerifyOtp = (req, res, next) => {
     const { error } = verifyOtpSchema.validate(
