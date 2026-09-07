@@ -10,6 +10,8 @@ import forgotPasswordRouter from "./routes/forgotPassword.routes.js";
 import authRoutes from "./routes/authRoutes.js";
 import verifyOtpRouter from "./routes/verifyOtp.routes.js";
 
+import changePasswordRouter from "./routes/changePassword.routes.js";
+
 const app = express();
 
 app.use(express.json());
@@ -23,6 +25,7 @@ app.use("/auth", loginRouter);
 app.use("/auth", forgotPasswordRouter);
 app.use("/auth", authRoutes);
 app.use("/auth", verifyOtpRouter);
+app.use("/auth", changePasswordRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

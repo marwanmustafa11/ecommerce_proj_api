@@ -8,6 +8,8 @@ import {
     registerSchema
 } from "../validation/auth.validation.js";
 
+import {changePasswordSchema} from"../validation/changePassword.validation.js";
+
 const validateSendForgotPasswordOtp = (req, res, next) => {
     const { error } = sendForgotPasswordOtpSchema.validate(req.body);
 
@@ -77,9 +79,29 @@ const validateVerifyOtp = (req, res, next) => {
     next();
 };
 
+const validateChangePassword = (req,res,next) =>{
+    const{error} = changePasswordSchema.validate(
+        req.body,
+        { abortEarly: false}
+    );
+
+    if(error) {
+        const errorMessages = error.details.map(
+            (detail) => detail.message
+        ); 
+
+        return res.status(400).json({
+            success:false,
+            message:errorMessages
+        });
+    }
+    next();
+};
+
 export {
     validateSendForgotPasswordOtp,
     validateVerifyForgotPasswordOtp,
     validateRegister,
-    validateVerifyOtp
+    validateVerifyOtp,
+    validateChangePassword
 };
