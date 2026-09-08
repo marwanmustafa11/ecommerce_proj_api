@@ -7,8 +7,8 @@ import dns from "dns";
 
 import loginRouter from "./routes/login.routes.js";
 import forgotPasswordRouter from "./routes/forgotPassword.routes.js";
-import authRoutes from "./routes/authRoutes.js";
-import verifyOtpRouter from "./routes/verifyOtp.routes.js";
+import authRoutes from "./routes/sendRegisterOTP.routes.js";
+import verifyOtpRouter from "./routes/verifyRegisterOTP.routes.js";
 
 const app = express();
 
