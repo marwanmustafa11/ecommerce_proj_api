@@ -6,7 +6,7 @@ import {
 import {
     verifyOtpSchema, 
     registerSchema
-} from "../validation/auth.validation.js";
+} from "../validation/register.validation.js";
 
 const validateSendForgotPasswordOtp = (req, res, next) => {
     const { error } = sendForgotPasswordOtpSchema.validate(req.body);
@@ -47,7 +47,7 @@ const validateRegister = (req, res, next) => {
     if (error) {
       const errorMessages = error.details.map((detail) => detail.message);
       return res.status(400).json({
-        status: "fail",
+        success: false,
         message: "Validation errors in data",
         errors: errorMessages
       });
@@ -68,7 +68,7 @@ const validateVerifyOtp = (req, res, next) => {
         );
 
         return res.status(400).json({
-            status: "fail",
+            success: false,
             message: "Validation errors in data",
             errors: errorMessages
         });

@@ -3,14 +3,16 @@ dotenv.config();
 
 import express from "express";
 import "./DB/mongoose.js";
-import dns from "dns";
-
+import dns from "dns"; 
+import cookieParser from "cookie-parser";
 import loginRouter from "./routes/login.routes.js";
 import forgotPasswordRouter from "./routes/forgotPassword.routes.js";
 import authRoutes from "./routes/sendRegisterOTP.routes.js";
 import verifyOtpRouter from "./routes/verifyRegisterOTP.routes.js";
 
 const app = express();
+
+app.use(cookieParser());
 
 app.use(express.json());
 
