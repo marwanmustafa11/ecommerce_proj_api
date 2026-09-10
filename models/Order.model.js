@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose" ;
 const orderSchema = new mongoose.Schema({
     user: {
          type: mongoose.Schema.Types.ObjectId,
@@ -23,10 +23,12 @@ const orderSchema = new mongoose.Schema({
      price:{
             type: Number,
             required: true,
+            min: 0,
     },
      quantity:{
             type: Number,
             required: true,
+            min: 1,
     },
 }],
 
@@ -65,7 +67,7 @@ const orderSchema = new mongoose.Schema({
     paymentStatus: {
       type: String,
       enum: ['pending','paid','failed','refunded'],
-     
+      default: 'pending',
     },
 
     transactionId: {
@@ -75,6 +77,7 @@ const orderSchema = new mongoose.Schema({
     subtotal: {
       type: Number,
       required: true,
+      min: 0
     },
 
     shippingFee: {
@@ -98,7 +101,7 @@ const orderSchema = new mongoose.Schema({
 status: {
       type: String,
       enum: ['pending','confirmed','processing','shipped','delivered','cancelled','returned'],
-    
+      default: 'pending'
     },
 
     paidAt: {
@@ -128,5 +131,4 @@ status: {
 );
 
 const Order = mongoose.model('Order', orderSchema);
-
-module.exports = Order;
+export default Order;
