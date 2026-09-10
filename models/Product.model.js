@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const slugify = require("slugify");
+import mongoose from "mongoose";
+import slugify from "slugify";
 const productSchema = mongoose.Schema(
   {
     name: {
@@ -33,7 +33,6 @@ const productSchema = mongoose.Schema(
     },
     stock: {
       type: Number,
-      default: 1,
       min: 0,
       required: true,
     },
@@ -69,7 +68,6 @@ const productSchema = mongoose.Schema(
     },
     subcategory: {
       type: String,
-      lowercase: true,
     },
     brand: {
       type: String,
@@ -124,9 +122,9 @@ const productSchema = mongoose.Schema(
   },
   { timestamps: true },
 );
-productSchema.pre("save", async function (next) {
+productSchema.pre("save", async function () {
   if (!this.isModified("name")) {
-    return next();
+    return ;
   }
   const baseSlug = slugify(this.name, {
     lower: true,
@@ -136,8 +134,9 @@ productSchema.pre("save", async function (next) {
 
   let slug = baseSlug;
   let length = 0;
-  while (
-    await ProductModel.exists({
+  while
+  (
+    await this.constructor.exists({
       slug,
       _id: { $ne: this._id },
     })
@@ -146,7 +145,6 @@ productSchema.pre("save", async function (next) {
     slug = `${baseSlug}-${length}`;
   }
   this.slug = slug;
-  next();
 });
 
 productSchema.methods.calcAverageRating = function () {
@@ -161,6 +159,19 @@ productSchema.methods.calcAverageRating = function () {
   );
   this.numReviews = this.reviews.length;
   this.averageRating = Number((totalReviews / this.numReviews).toFixed(2));
+  
 };
+productSchema.index({
+  name: "text",
+  description: "text",
+  brand: "text",
+});
+
+productSchema.index({ category: 1 });
+productSchema.index({ brand: 1 });
+productSchema.index({ price: 1 });
+productSchema.index({ averageRating: 1 });
+productSchema.index({ createdAt: 1 });
+
 const ProductModel = mongoose.model("Product", productSchema);
-module.exports = ProductModel;
+export default ProductModel;
