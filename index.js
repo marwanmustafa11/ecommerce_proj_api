@@ -5,14 +5,24 @@ import express from "express";
 import "./DB/mongoose.js";
 import dns from "dns";
 
+//to use in auth middleware file 
+import cookieParser from "cookie-parser";
+
+
+
 import loginRouter from "./routes/login.routes.js";
 import forgotPasswordRouter from "./routes/forgotPassword.routes.js";
 import authRoutes from "./routes/authRoutes.js";
 import verifyOtpRouter from "./routes/verifyOtp.routes.js";
 
 import changePasswordRouter from "./routes/changePassword.routes.js";
+import getProfileRouter from "./routes/getProfile.routes.js";
+import updateProfileRouter from "./routes/updateProfile.routes.js";
 
 const app = express();
+
+//for using cookies in auth middleware file
+app.use(cookieParser());
 
 app.use(express.json());
 
@@ -26,6 +36,8 @@ app.use("/auth", forgotPasswordRouter);
 app.use("/auth", authRoutes);
 app.use("/auth", verifyOtpRouter);
 app.use("/auth", changePasswordRouter);
+app.use("/auth", getProfileRouter);
+app.use("/users", updateProfileRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
