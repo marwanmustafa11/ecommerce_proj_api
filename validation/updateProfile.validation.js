@@ -1,8 +1,10 @@
 import Joi from "joi";
 
 const updateProfileSchema = Joi.object({
-    username: Joi.string().min(3),
-    email: Joi.string().email(),
+    username: Joi.string().required().messages({
+        "any.required": "Username is required",
+        "string.empty": "Username cannot be empty"
+    }),
     phone: Joi.string(),
     avatar: Joi.string()
 });

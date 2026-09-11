@@ -2,7 +2,7 @@ import User from "../models/User.model.js";
 
 export const updateProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
+        const user = await User.findById(req.user._id);
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -10,22 +10,9 @@ export const updateProfile = async (req, res) => {
             });
         }
 
-        const { username, email, phone, avatar } = req.body;
-        if (email && email !== user.email) {
-            const existingUser = await User.findOne({ email });
-
-            if (existingUser) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Email already exists"
-                });
-            }
-        }
+        const { username, phone, avatar } = req.body;
         if (username !== undefined) {
             user.username = username;
-        }
-        if (email !== undefined) {
-            user.email = email;
         }
         if (phone !== undefined) {
             user.phone = phone;
@@ -33,7 +20,7 @@ export const updateProfile = async (req, res) => {
         if (avatar !== undefined) {
             user.avatar = avatar;
         }
-        
+
         await user.save();
 
         return res.status(200).json({
