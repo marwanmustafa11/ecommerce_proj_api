@@ -102,7 +102,7 @@ document.getElementById('forgot-form').addEventListener('submit', async (e) => {
     email: document.getElementById('forgot-email').value
   };
 
-  const res = await sendRequest('/forgot-password', data);
+  const res = await sendRequest('/forgot-password/send-otp', data);
   if (res) {
     document.getElementById('reset-email').value = data.email;
   }
@@ -117,5 +117,5 @@ document.getElementById('reset-form').addEventListener('submit', async (e) => {
     newPassword: document.getElementById('reset-new-password').value
   };
 
-  await sendRequest('/reset-password', data);
+  await sendRequest('/forgot-password/verify-otp', data);
 });
