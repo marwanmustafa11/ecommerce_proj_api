@@ -78,9 +78,9 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre('save' , async function () {
-    if (!this.isModified('password')) return ; // لو التعديل في حاجه تانيه غير الباسوورد اخرج متعملش تشفير
+    
+    if (!this.isModified('password')) return // لو التعديل في حاجه تانيه غير الباسوورد اخرج متعملش تشفير
     this.password = await bcrypt.hash(this.password, 10);
-
 })
 
 userSchema.methods.comparePassword= async function (enteredPassword) {
