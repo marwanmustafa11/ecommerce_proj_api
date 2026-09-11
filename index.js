@@ -5,6 +5,8 @@ import express from "express";
 import "./DB/mongoose.js";
 import dns from "dns";
 
+import cors from 'cors';
+
 import loginRouter from "./routes/login.routes.js";
 import forgotPasswordRouter from "./routes/forgotPassword.routes.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -18,6 +20,8 @@ const PORT = process.env.PORT || 3000;
 
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 app.set("trust proxy", 1);
+
+app.use(cors());
 
 app.use("/auth", loginRouter);
 app.use("/auth", forgotPasswordRouter);

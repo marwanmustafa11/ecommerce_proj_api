@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام إدارة الحسابات</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('register')">إنشاء حساب</button>
+      <button class="tab-btn" onclick="switchTab('verify')">تفعيل OTP</button>
+      <button class="tab-btn" onclick="switchTab('login')">تسجيل الدخول</button>
+      <button class="tab-btn" onclick="switchTab('forgot')">نسيان كلمة السر</button>
+      <button class="tab-btn" onclick="switchTab('reset')">إعادة تعيين كلمة السر</button>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="alert" class="alert hidden"></div>
+
+    <!-- 1. Register Form -->
+    <form id="register-form" class="auth-form">
+      <h2>إنشاء حساب جديد</h2>
+      <input type="text" id="reg-username" placeholder="اسم المستخدم" required>
+      <input type="email" id="reg-email" placeholder="البريد الإلكتروني" required>
+      <input type="password" id="reg-password" placeholder="كلمة المرور (حروف، أرقام، رموز)" required>
+      <input type="text" id="reg-phone" placeholder="رقم الهاتف (اختياري)">
+      <button type="submit">إرسال رمز OTP</button>
+    </form>
+
+    <!-- 2. Verify OTP Form -->
+    <form id="verify-form" class="auth-form hidden">
+      <h2>تفعيل الحساب (OTP)</h2>
+      <input type="email" id="verify-email" placeholder="البريد الإلكتروني" required>
+      <input type="text" id="verify-otp" placeholder="رمز OTP المكون من 6 أرقام" required maxlength="6">
+      <button type="submit">تفعيل الحساب</button>
+    </form>
+
+    <!-- 3. Login Form -->
+    <form id="login-form" class="auth-form hidden">
+      <h2>تسجيل الدخول</h2>
+      <input type="email" id="login-email" placeholder="البريد الإلكتروني" required>
+      <input type="password" id="login-password" placeholder="كلمة المرور" required>
+      <button type="submit">دخول</button>
+    </form>
+
+    <!-- 4. Forgot Password Form -->
+    <form id="forgot-form" class="auth-form hidden">
+      <h2>نسيان كلمة السر</h2>
+      <input type="email" id="forgot-email" placeholder="أدخل بريدك الإلكتروني" required>
+      <button type="submit">إرسال رمز إعادة التعيين</button>
+    </form>
+
+    <!-- 5. Reset Password Form -->
+    <form id="reset-form" class="auth-form hidden">
+      <h2>إعادة تعيين كلمة السر</h2>
+      <input type="email" id="reset-email" placeholder="البريد الإلكتروني" required>
+      <input type="text" id="reset-otp" placeholder="رمز OTP" required>
+      <input type="password" id="reset-new-password" placeholder="كلمة المرور الجديدة" required>
+      <button type="submit">تحديث كلمة السر</button>
+    </form>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
