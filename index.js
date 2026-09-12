@@ -11,6 +11,10 @@ import authRoutes from "./routes/sendRegisterOTP.routes.js";
 import verifyOtpRouter from "./routes/verifyRegisterOTP.routes.js";
 import routerProduct from "./routes/product.routes.js";
 
+import changePasswordRouter from "./routes/changePassword.routes.js";
+import getProfileRouter from "./routes/getProfile.routes.js";
+import updateProfileRouter from "./routes/updateProfile.routes.js";
+
 const app = express();
 
 app.use(cookieParser());
@@ -27,6 +31,9 @@ app.use("/auth", forgotPasswordRouter);
 app.use("/auth", authRoutes);
 app.use("/auth", verifyOtpRouter);
 app.use("/products", routerProduct);
+app.use("/auth", changePasswordRouter);
+app.use("/auth", getProfileRouter);
+app.use("/users", updateProfileRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
