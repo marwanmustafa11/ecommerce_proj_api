@@ -36,7 +36,7 @@ user: {
       default: 1,
     },
   }
- ],
+  ],
 
 coupon: {
     code: {
@@ -54,8 +54,11 @@ coupon: {
     },
   },
 },
-   {
-    timestamps: true 
+  {
+    timestamps: true ,
+    toJSON:{
+      virtuals:true
+    }
   }
 );
 
@@ -70,7 +73,7 @@ cartSchema.virtual('subtotal').get(function () {
 
 cartSchema.virtual('discountAmount').get(function () {
   if (!this.coupon || !this.coupon.discountValue) 
-     return 0;
+    return 0;
 
   if (this.coupon.discountType == 'percentage') {
     return (this.subtotal * this.coupon.discountValue) / 100;

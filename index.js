@@ -9,7 +9,7 @@ import loginRouter from "./routes/login.routes.js";
 import forgotPasswordRouter from "./routes/forgotPassword.routes.js";
 import authRoutes from "./routes/sendRegisterOTP.routes.js";
 import verifyOtpRouter from "./routes/verifyRegisterOTP.routes.js";
-
+import cartRoutes from "./routes/carts.routes.js"
 const app = express();
 
 app.use(cookieParser());
@@ -25,7 +25,7 @@ app.use("/auth", loginRouter);
 app.use("/auth", forgotPasswordRouter);
 app.use("/auth", authRoutes);
 app.use("/auth", verifyOtpRouter);
-
+app.use('/',cartRoutes)
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

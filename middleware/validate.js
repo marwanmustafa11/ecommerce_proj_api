@@ -7,7 +7,10 @@ import {
     verifyOtpSchema, 
     registerSchema
 } from "../validation/register.validation.js";
-
+import{
+    cartSchema,
+    productIdSchema
+} from "../validation/cart.validations.js"
 const validateSendForgotPasswordOtp = (req, res, next) => {
     const { error } = sendForgotPasswordOtpSchema.validate(req.body);
 
@@ -77,9 +80,51 @@ const validateVerifyOtp = (req, res, next) => {
     next();
 };
 
+const validateCart = (req, res, next) => {
+    const { error } = cartSchema.validate(
+        req.body,
+        { abortEarly: false }
+    );
+
+    if (error) {
+        const errorMessages = error.details.map(
+            (detail) => detail.message
+        );
+
+        return res.status(400).json({
+            success: false,
+            message: "Validation errors in data",
+            errors: errorMessages
+        });
+    }
+
+    next();
+};
+const validateProductId= (req, res, next) => {
+    const { error } = productIdSchema.validate(
+        req.params,
+        { abortEarly: false }
+    );
+
+    if (error) {
+        const errorMessages = error.details.map(
+            (detail) => detail.message
+        );
+
+        return res.status(400).json({
+            success: false,
+            message: "Validation errors in data",
+            errors: errorMessages
+        });
+    }
+
+    next();
+};
 export {
     validateSendForgotPasswordOtp,
     validateVerifyForgotPasswordOtp,
     validateRegister,
-    validateVerifyOtp
+    validateVerifyOtp,
+    validateCart,
+    validateProductId
 };
