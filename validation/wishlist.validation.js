@@ -1,0 +1,17 @@
+import Joi from "joi";
+
+// التحقق إن الـ productId موجود وشكله MongoDB ObjectId صحيح
+const productIdSchema = Joi.object({
+    productId: Joi.string()
+        .hex()
+        .length(24)
+        .required()
+        .messages({
+            "string.empty": "Product ID is required",
+            "string.length": "Product ID must be a valid MongoDB ObjectId",
+            "string.hex": "Product ID must be a valid MongoDB ObjectId",
+            "any.required": "Product ID is required",
+        }),
+});
+
+export { productIdSchema };
