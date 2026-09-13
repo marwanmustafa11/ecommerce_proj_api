@@ -1,11 +1,11 @@
 import {
-    sendForgotPasswordOtpSchema,
-    verifyForgotPasswordOtpSchema
+  sendForgotPasswordOtpSchema,
+  verifyForgotPasswordOtpSchema,
 } from "../validation/forgotPassword.validation.js";
 
 import {
-    verifyOtpSchema, 
-    registerSchema
+  verifyOtpSchema,
+  registerSchema,
 } from "../validation/register.validation.js";
 
 import{
@@ -17,36 +17,33 @@ import{
 import { changePasswordSchema } from"../validation/changePassword.validation.js";
 import { updateProfileSchema } from "../validation/updateProfile.validation.js";
 const validateSendForgotPasswordOtp = (req, res, next) => {
-    const { error } = sendForgotPasswordOtpSchema.validate(req.body);
+  const { error } = sendForgotPasswordOtpSchema.validate(req.body);
 
-    if (error) {
-        return res.status(400).json({
-            success: false,
-            message: error.details[0].message
-        });
-    }
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.details[0].message,
+    });
+  }
 
-    next();
+  next();
 };
 
 const validateVerifyForgotPasswordOtp = (req, res, next) => {
-    const { error } = verifyForgotPasswordOtpSchema.validate(
-        req.body,
-        { abortEarly: false }
-    );
+  const { error } = verifyForgotPasswordOtpSchema.validate(req.body, {
+    abortEarly: false,
+  });
 
-    if (error) {
-        const errorMessages = error.details.map(
-            (detail) => detail.message
-        );
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
 
-        return res.status(400).json({
-            success: false,
-            message: errorMessages
-        });
-    }
+    return res.status(400).json({
+      success: false,
+      message: errorMessages,
+    });
+  }
 
-    next();
+  next();
 };
 
 const validateRegister = (req, res, next) => {
@@ -63,26 +60,49 @@ const validateRegister = (req, res, next) => {
 
     next();
     };
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+    return res.status(400).json({
+      success: false,
+      message: "Validation errors in data",
+      errors: errorMessages,
+    });
+  }
+
+  next();
+};
 
 const validateVerifyOtp = (req, res, next) => {
-    const { error } = verifyOtpSchema.validate(
-        req.body,
-        { abortEarly: false }
-    );
+  const { error } = verifyOtpSchema.validate(req.body, { abortEarly: false });
+
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+
+    return res.status(400).json({
+      success: false,
+      message: "Validation errors in data",
+      errors: errorMessages,
+    });
+  }
+
+  next();
+};
+const validateProduct = (schema) => {
+  return (req, res, next) => {
+    const { error } = schema.validate(req.body, {
+      abortEarly: false,
+    });
 
     if (error) {
-        const errorMessages = error.details.map(
-            (detail) => detail.message
-        );
-
-        return res.status(400).json({
-            success: false,
-            message: "Validation errors in data",
-            errors: errorMessages
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        errors: error.details.map((err) => err.message),
+      });
     }
 
     next();
+  };
 };
 
 
@@ -173,5 +193,6 @@ export {
     validateCart,
     validateProductId,
     validateChangePassword,
-    validateUpdateProfile
+    validateUpdateProfile,
+    validateProduct
 };
