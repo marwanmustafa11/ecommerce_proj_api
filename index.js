@@ -9,6 +9,7 @@ import loginRouter from "./routes/login.routes.js";
 import forgotPasswordRouter from "./routes/forgotPassword.routes.js";
 import authRoutes from "./routes/sendRegisterOTP.routes.js";
 import verifyOtpRouter from "./routes/verifyRegisterOTP.routes.js";
+import cartRoutes from "./routes/carts.routes.js"
 import routerProduct from "./routes/product.routes.js";
 
 import changePasswordRouter from "./routes/changePassword.routes.js";
@@ -30,11 +31,13 @@ app.use("/auth", loginRouter);
 app.use("/auth", forgotPasswordRouter);
 app.use("/auth", authRoutes);
 app.use("/auth", verifyOtpRouter);
+
+app.use('/',cartRoutes)
+
 app.use("/products", routerProduct);
 app.use("/auth", changePasswordRouter);
 app.use("/auth", getProfileRouter);
 app.use("/users", updateProfileRouter);
-
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
