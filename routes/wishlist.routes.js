@@ -9,7 +9,7 @@ import {
 
 import { protect } from "../middleware/auth.middleware.js";
 
-import { validateProductId } from "../middleware/validate.js";
+import { validateWishlistProductId } from "../middleware/validate.js";
 
 const router = express.Router();
 
@@ -20,7 +20,7 @@ router.get("/", protect, getWishlist);
 router.post(
     "/:productId",
     protect,
-    validateProductId,
+    validateWishlistProductId,
     addProductToWishlist
 );
 
@@ -28,7 +28,7 @@ router.post(
 router.delete(
     "/:productId",
     protect,
-    validateProductId,
+    validateWishlistProductId,
     removeProductFromWishlist
 );
 

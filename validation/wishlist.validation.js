@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 // التحقق إن الـ productId موجود وشكله MongoDB ObjectId صحيح
-const productIdSchema = Joi.object({
+const wishlistProductIdSchema = Joi.object({
     productId: Joi.string()
         .hex()
         .length(24)
@@ -14,4 +14,4 @@ const productIdSchema = Joi.object({
         }),
 });
 
-export { productIdSchema };
+export { wishlistProductIdSchema };
