@@ -60,17 +60,6 @@ const validateRegister = (req, res, next) => {
 
     next();
     };
-  if (error) {
-    const errorMessages = error.details.map((detail) => detail.message);
-    return res.status(400).json({
-      success: false,
-      message: "Validation errors in data",
-      errors: errorMessages,
-    });
-  }
-
-  next();
-};
 
 const validateVerifyOtp = (req, res, next) => {
   const { error } = verifyOtpSchema.validate(req.body, { abortEarly: false });
