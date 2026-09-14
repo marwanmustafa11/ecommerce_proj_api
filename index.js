@@ -14,6 +14,7 @@ import routerProduct from "./routes/product.routes.js";
 import changePasswordRouter from "./routes/changePassword.routes.js";
 import getProfileRouter from "./routes/getProfile.routes.js";
 import updateProfileRouter from "./routes/updateProfile.routes.js";
+import couponRouter from "./routes/coupon.routes.js";
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use("/products", routerProduct);
 app.use("/auth", changePasswordRouter);
 app.use("/auth", getProfileRouter);
 app.use("/users", updateProfileRouter);
+app.use("/carts", couponRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
