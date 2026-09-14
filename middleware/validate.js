@@ -185,5 +185,6 @@ export {
   validateChangePassword,
   validateUpdateProfile,
   validateProductId,
+  validateProduct,
   validateWishlistProductId,
 };
