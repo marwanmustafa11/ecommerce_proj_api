@@ -12,14 +12,14 @@ const transporter = nodemailer.createTransport({
 // 465 → secure: true
 // 587 → secure: false
 const sendEmail = async (to, subject, text) => {
-
-    await transporter.sendMail({
+    const info = await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to,
         subject,
         text,
     });
 
+    console.log("Email sent successfully:", info.messageId);
 };
 
 export default sendEmail;
