@@ -111,7 +111,17 @@ const updateProduct = async (req, res) => {
 
  const searchProducts = async (req, res) => {
   try {
-       const { search, category , subcategory, brand , tags, minPrice, maxPrice} = req.query;
+       const { search, category , subcategory, brand , tags, minPrice, maxPrice, rating} = req.query;
+        if (
+          minPrice !== undefined &&
+          maxPrice !== undefined &&
+          Number(minPrice) > Number(maxPrice)
+        ) {
+      return res.status(400).json({
+        success: false,
+        message: "minPrice cannot be greater than maxPrice",
+      });
+    }
        const filter = { isActive: true };
        if (search) 
         {
@@ -137,6 +147,11 @@ const updateProduct = async (req, res) => {
         filter.tags = {
           $in: tagslist};
      }
+      if (rating !== undefined) {
+        filter.rating = {
+      $gte: Number(rating)
+      };
+    }
 
       if (minPrice !== undefined || maxPrice !== undefined) {
         filter.price = {};
