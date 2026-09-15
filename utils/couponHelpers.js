@@ -16,15 +16,15 @@ export const calculateDiscountAmount = (subtotal, coupon) => {
 
     if (subtotal <= 0) return 0;
 
-    let discountAmount = 0;
+    let discount = 0;
 
     if (coupon.discountType === "percentage") {
-        discountAmount = (subtotal * coupon.discountValue) / 100;
+        discount = (subtotal * coupon.discountValue) / 100;
     } else if (coupon.discountType === "fixed") {
-        discountAmount = coupon.discountValue;
+        discount = coupon.discountValue;
     }
 
-    return Math.min(discountAmount , subtotal);
+    return Math.min(discount , subtotal);
 };
 ////////////////////////////////////////////////////
 // isCouponValid
