@@ -174,17 +174,6 @@ const validateSearchProducts = (req, res, next) => {
     next();
 }; 
 
-export {
-    validateSendForgotPasswordOtp,
-    validateVerifyForgotPasswordOtp,
-    validateRegister,
-    validateVerifyOtp,
-    validateCart,
-    validateProductId,
-    validateChangePassword,
-    validateUpdateProfile,
-    validateProduct,
-    validateSearchProducts 
 //validation for wishlist
 const validateWishlistProductId = (req, res, next) => {
   const { error } = wishlistProductIdSchema.validate(req.params, {
@@ -215,4 +204,5 @@ export {
   validateProductId,
   validateProduct,
   validateWishlistProductId,
+  validateSearchProducts
 };
