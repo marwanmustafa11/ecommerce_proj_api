@@ -1,6 +1,6 @@
 import Product from "../models/Product.model.js";
 import uploadToCloudinary from "../utils/uploadToCloudinary.js";
-
+import deleteFromCloudinary from "../utils/deleteFromCloudinary.js";
 const createProduct = async (req, res) => {
   try {
     const productData = {
@@ -109,52 +109,50 @@ const updateProduct = async (req, res) => {
   }
 };
 
- const searchProducts = async (req, res) => {
+const searchProducts = async (req, res) => {
   try {
-       const { search, category , subcategory, brand , tags, minPrice, maxPrice, rating} = req.query;
-        if (
-          minPrice !== undefined &&
-          maxPrice !== undefined &&
-          Number(minPrice) > Number(maxPrice)
-        ) {
+    const { search, category, subcategory, brand, tags, minPrice, maxPrice, rating } = req.query;
+    if (
+      minPrice !== undefined &&
+      maxPrice !== undefined &&
+      Number(minPrice) > Number(maxPrice)
+    ) {
       return res.status(400).json({
         success: false,
         message: "minPrice cannot be greater than maxPrice",
       });
     }
-       const filter = { isActive: true };
-       if (search) 
-        {
-          filter.$text = { $search: search };
-        }
+    const filter = { isActive: true };
+    if (search) {
+      filter.$text = { $search: search };
+    }
 
-       if (category) 
-        {
-         filter.category = category.toLowerCase();
-        }
+    if (category) {
+      filter.category = category.toLowerCase();
+    }
 
-       if (subcategory){
-        filter.subcategory = subcategory;
-       } 
+    if (subcategory) {
+      filter.subcategory = subcategory;
+    }
 
-       if (brand) 
-        {
-        filter.brand = new RegExp(`^${brand}$`, "i");
-        }
+    if (brand) {
+      filter.brand = new RegExp(`^${brand}$`, "i");
+    }
 
-       if (tags) {
-        const tagslist = tags.split(",").map((tag) => tag.trim());
-        filter.tags = {
-          $in: tagslist};
-     }
-      if (rating !== undefined) {
-        filter.rating = {
-      $gte: Number(rating)
+    if (tags) {
+      const tagslist = tags.split(",").map((tag) => tag.trim());
+      filter.tags = {
+        $in: tagslist
+      };
+    }
+    if (rating !== undefined) {
+      filter.rating = {
+        $gte: Number(rating)
       };
     }
 
-      if (minPrice !== undefined || maxPrice !== undefined) {
-        filter.price = {};
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      filter.price = {};
 
       if (minPrice !== undefined) {
         filter.price.$gte = Number(minPrice);
@@ -162,7 +160,7 @@ const updateProduct = async (req, res) => {
       if (maxPrice !== undefined) {
         filter.price.$lte = Number(maxPrice);
       }
-   }
+    }
 
     const products = await Product.find(filter);
     res.status(200).json({
@@ -170,7 +168,7 @@ const updateProduct = async (req, res) => {
       message: "Products found successfully",
       products,
     });
-   }
+  }
 
   catch (error) {
     res.status(500).json({
@@ -181,4 +179,51 @@ const updateProduct = async (req, res) => {
 };
 
 
-export { createProduct, getAllProducts, getProductById, updateProduct,searchProducts };
+
+
+
+
+const deleteProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: `No product found with ID: ${id}`,
+      });
+    }
+
+    const publicIdsToDelete = [];
+
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      product.images.forEach((img) => {
+        if (img && img.public_id) {
+          publicIdsToDelete.push(img.public_id);
+        }
+      });
+    }
+
+    if (publicIdsToDelete.length > 0) {
+      await Promise.all(
+        publicIdsToDelete.map((publicId) => deleteFromCloudinary(publicId))
+      );
+    }
+
+    await Product.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Product and all associated images deleted successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export { createProduct, getAllProducts, getProductById, updateProduct, searchProducts, deleteProduct };
