@@ -13,6 +13,7 @@ import { cartSchema, productIdSchema } from "../validation/cart.validations.js";
 import { changePasswordSchema } from "../validation/changePassword.validation.js";
 import { updateProfileSchema } from "../validation/updateProfile.validation.js";
 
+import { searchProductsSchema } from "../validation/searchProducts.validation.js";
 //validation for wishlist
 import { wishlistProductIdSchema } from "../validation/wishlist.validation.js";
 
@@ -157,6 +158,22 @@ const validateProductId = (req, res, next) => {
   next();
 };
 
+const validateSearchProducts = (req, res, next) => {
+    const { error } = searchProductsSchema.validate( req.query , { abortEarly: false }
+    );
+
+    if (error) {
+        const errorMessages = error.details.map( (detail) => detail.message);
+
+        return res.status(400).json({
+            success: false,
+            message: errorMessages
+        });
+    }
+
+    next();
+}; 
+
 //validation for wishlist
 const validateWishlistProductId = (req, res, next) => {
   const { error } = wishlistProductIdSchema.validate(req.params, {
@@ -187,4 +204,5 @@ export {
   validateProductId,
   validateProduct,
   validateWishlistProductId,
+  validateSearchProducts
 };

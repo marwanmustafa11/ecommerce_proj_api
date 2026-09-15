@@ -109,4 +109,76 @@ const updateProduct = async (req, res) => {
   }
 };
 
-export { createProduct, getAllProducts, getProductById, updateProduct };
+ const searchProducts = async (req, res) => {
+  try {
+       const { search, category , subcategory, brand , tags, minPrice, maxPrice, rating} = req.query;
+        if (
+          minPrice !== undefined &&
+          maxPrice !== undefined &&
+          Number(minPrice) > Number(maxPrice)
+        ) {
+      return res.status(400).json({
+        success: false,
+        message: "minPrice cannot be greater than maxPrice",
+      });
+    }
+       const filter = { isActive: true };
+       if (search) 
+        {
+          filter.$text = { $search: search };
+        }
+
+       if (category) 
+        {
+         filter.category = category.toLowerCase();
+        }
+
+       if (subcategory){
+        filter.subcategory = subcategory;
+       } 
+
+       if (brand) 
+        {
+        filter.brand = new RegExp(`^${brand}$`, "i");
+        }
+
+       if (tags) {
+        const tagslist = tags.split(",").map((tag) => tag.trim());
+        filter.tags = {
+          $in: tagslist};
+     }
+      if (rating !== undefined) {
+        filter.rating = {
+      $gte: Number(rating)
+      };
+    }
+
+      if (minPrice !== undefined || maxPrice !== undefined) {
+        filter.price = {};
+
+      if (minPrice !== undefined) {
+        filter.price.$gte = Number(minPrice);
+      }
+      if (maxPrice !== undefined) {
+        filter.price.$lte = Number(maxPrice);
+      }
+   }
+
+    const products = await Product.find(filter);
+    res.status(200).json({
+      success: true,
+      message: "Products found successfully",
+      products,
+    });
+   }
+
+  catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+export { createProduct, getAllProducts, getProductById, updateProduct,searchProducts };
