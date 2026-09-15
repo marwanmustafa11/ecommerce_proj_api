@@ -10,6 +10,7 @@ import {
 
 import { changePasswordSchema } from"../validation/changePassword.validation.js";
 import { updateProfileSchema } from "../validation/updateProfile.validation.js";
+import { productQuerySchema } from "../validation/sortingPagination.validation.js";
 
 const validateSendForgotPasswordOtp = (req, res, next) => {
     const { error } = sendForgotPasswordOtpSchema.validate(req.body);
@@ -116,11 +117,31 @@ const validateUpdateProfile = (req, res, next) => {
     next();
 };
 
+const validateSortingPagination = (req, res, next) => {
+    const { error } = productQuerySchema.validate(req.query, {
+        abortEarly: false
+    });
+
+    if (error) {
+        const errorMessages = error.details.map(
+            (detail) => detail.message
+        );
+
+        return res.status(400).json({
+            success: false,
+            message: errorMessages
+        });
+    }
+
+    next();
+};
+
 export {
     validateSendForgotPasswordOtp,
     validateVerifyForgotPasswordOtp,
     validateRegister,
     validateVerifyOtp,
     validateChangePassword,
-    validateUpdateProfile
+    validateUpdateProfile,
+    validateSortingPagination
 };

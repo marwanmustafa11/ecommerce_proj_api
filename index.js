@@ -13,6 +13,7 @@ import verifyOtpRouter from "./routes/verifyRegisterOTP.routes.js";
 import changePasswordRouter from "./routes/changePassword.routes.js";
 import getProfileRouter from "./routes/getProfile.routes.js";
 import updateProfileRouter from "./routes/updateProfile.routes.js";
+import sortingPaginationRouter from "./routes/sortingPagination.routes.js";
 
 const app = express();
 
@@ -32,6 +33,8 @@ app.use("/auth", verifyOtpRouter);
 app.use("/auth", changePasswordRouter);
 app.use("/auth", getProfileRouter);
 app.use("/users", updateProfileRouter);
+
+app.use(sortingPaginationRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
