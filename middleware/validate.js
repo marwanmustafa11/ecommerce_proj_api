@@ -13,6 +13,7 @@ import{
     productIdSchema
 } from "../validation/cart.validations.js"
 
+import { applyCouponSchema } from "../validation/coupon.validation.js";
 
 import { changePasswordSchema } from"../validation/changePassword.validation.js";
 import { updateProfileSchema } from "../validation/updateProfile.validation.js";
@@ -151,6 +152,21 @@ const validateUpdateProfile = (req, res, next) => {
     next();
 };
 
+const validateCoupon = (req, res, next) => {
+  const { error } = applyCouponSchema.validate(req.body, { abortEarly: false });
+
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+    return res.status(400).json({
+      success: false,
+      message: "Validation error",
+      errors: errorMessages,
+    });
+  }
+
+  next();
+};
+
 const validateProductId= (req, res, next) => {
     const { error } = productIdSchema.validate(
         req.params,
@@ -173,7 +189,6 @@ const validateProductId= (req, res, next) => {
 };
 
 
-
 export {
     validateSendForgotPasswordOtp,
     validateVerifyForgotPasswordOtp,
@@ -183,5 +198,6 @@ export {
     validateProductId,
     validateChangePassword,
     validateUpdateProfile,
-    validateProduct
+    validateProduct,
+    validateCoupon
 };
