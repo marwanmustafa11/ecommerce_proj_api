@@ -1,4 +1,5 @@
 import Product from "../models/Product.model.js";
+import deleteFromCloudinary from "../utils/deleteFromCloudinary.js";
 import uploadToCloudinary from "../utils/uploadToCloudinary.js";
 
 const createProduct = async (req, res) => {
@@ -84,7 +85,23 @@ const updateProduct = async (req, res) => {
       });
     }
 
-    Object.assign(product, req.body);
+    // Object.assign(product, req.body); //هفصل الصوره عن باقي الداتا
+
+     const { deletedImages, ...productData } = req.body
+     Object.assign(product, productData);
+
+
+     if (deletedImages) {
+      const imagesToDelete = JSON.parse(deletedImages);
+
+      await Promise.all(
+        imagesToDelete.map((publicId) => deleteFromCloudinary(publicId)),
+      );
+      product.images = product.images.filter(
+        (image)=> !imagesToDelete.includes(image.public_id)
+      )
+    }
+
 
     if (req.files && req.files.length > 0) {
       const uploadedImages = await Promise.all(

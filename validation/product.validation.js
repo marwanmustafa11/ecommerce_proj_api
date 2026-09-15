@@ -54,6 +54,8 @@ const updateProductValidation = Joi.object({
   featured: Joi.boolean().optional(),
 
   isActive: Joi.boolean().optional(),
+
+  deletedImages: Joi.string().optional(),
 });
 
 export { createProductValidation, updateProductValidation };
