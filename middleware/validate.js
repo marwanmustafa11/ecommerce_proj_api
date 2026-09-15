@@ -125,6 +125,20 @@ const validateUpdateProfile = (req, res, next) => {
     next();
 };
 
+const validateCoupon = (req, res, next) => {
+  const { error } = applyCouponSchema.validate(req.body, { abortEarly: false });
+
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+    return res.status(400).json({
+      success: false,
+      message: "Validation error",
+      errors: errorMessages,
+    });
+  }
+
+  next();
+};
 export {
     validateSendForgotPasswordOtp,
     validateVerifyForgotPasswordOtp,
@@ -132,5 +146,6 @@ export {
     validateVerifyOtp,
     validateChangePassword,
     validateUpdateProfile,
-    validateProduct
+    validateProduct,
+    validateCoupon
 };

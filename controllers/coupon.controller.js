@@ -5,12 +5,12 @@ import { getCouponByCode } from "../utils/couponHelpers.js";
 
 export const applyCoupon = async (req, res) => {
     try {
-        const { code } =req.body;
+        const { code } = req.body;
         const coupon = getCouponByCode(code);
         if (!coupon) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid or expired coupon code" 
+                message: "Invalid or expired coupon code"
             });
         }
 
@@ -30,24 +30,28 @@ export const applyCoupon = async (req, res) => {
             });
         }
 
-        cart.coupon = {
-            code: coupon.code,
-            discountType: coupon.discountType,
-            discountValue: coupon.discountValue
-        };
+        cart.coupon = { ...coupon };
 
         await cart.save();
 
         return res.status(200).json({
             success: true,
-            message: "Coupon applied successfully",
-            cart
+            message: `Coupon applied successfully - you saved ${(
+                cart.coupon.discountType === "percentage" ? 
+                `${cart.coupon.discountValue}%` : 
+                `$${cart.coupon.discountValue}`
+            )}!`,
+            itemCount: cart.itemCount,
+            subtotal: cart.subtotal,
+            discountAmount: cart.discountAmount,
+            total: cart.total,
+            coupon: cart.coupon?.code || null,
+            items: cart.items,
         });
     } catch (error) {
-        console.error("Error applying coupon:", error);
         res.status(500).json({
             success: false,
-            message: "Internal server error"
+            message: error.message || "Internal server error"
         });
     }
 }
@@ -71,10 +75,14 @@ export const removeCoupon = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Coupon removed successfully",
-            cart
+            itemCount: cart.itemCount,
+            subtotal: cart.subtotal,
+            discountAmount: cart.discountAmount,
+            total: cart.total,
+            coupon: cart.coupon?.code || null,
+            items: cart.items,
         });
     } catch (error) {
-        console.error("Error removing coupon:", error);
         res.status(500).json({
             success: false,
             message: error.message || "Internal server error"
