@@ -5,7 +5,8 @@ import {
   getAllProducts,
   getProductById,
   updateProduct,
-  searchProducts
+  searchProducts,
+  deleteProduct,
 } from "../controllers/product.controller.js";
 
 import { protect } from "../middleware/auth.middleware.js";
@@ -53,5 +54,9 @@ routerProduct.put(
   validateProduct(updateProductValidation),
   updateProduct,
 );
+
+// Delete Product
+routerProduct.delete("/:id", protect, adminOnly, deleteProduct);
+
 
 export default routerProduct;
