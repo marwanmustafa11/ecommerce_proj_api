@@ -33,7 +33,8 @@ const updateProductValidation = Joi.object({
   deletedImagePublicIds: Joi.alternatives().try(
     Joi.array().items(Joi.string()),
     Joi.string()
-  ).optional()
+  ).optional(),
+  deletedImages: Joi.string().optional(),
 });
 
 export { createProductValidation, updateProductValidation };

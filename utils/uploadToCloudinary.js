@@ -1,7 +1,7 @@
 import { Readable } from "stream";
 import { cloudinary } from "../config/cloudinary.js";
 
-export const uploadToCloudinary = (fileBuffer, folder = "products") => {
+const uploadToCloudinary = (fileBuffer, folder = "products") => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
@@ -24,6 +24,4 @@ export const uploadToCloudinary = (fileBuffer, folder = "products") => {
   });
 };
 
-export const deleteFromCloudinary = async (publicId) => {
-  return await cloudinary.uploader.destroy(publicId);
-};
+export default uploadToCloudinary;

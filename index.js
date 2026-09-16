@@ -39,7 +39,7 @@ app.use("/auth", forgotPasswordRouter);
 app.use("/auth", authRoutes);
 app.use("/auth", verifyOtpRouter);
 
-app.use('/',cartRoutes)
+app.use('/carts',cartRoutes)
 
 app.use("/products", routerProduct);
 app.use("/auth", changePasswordRouter);
