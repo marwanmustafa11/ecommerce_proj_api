@@ -175,3 +175,4 @@ productSchema.index({ createdAt: 1 });
 
 const ProductModel = mongoose.model("Product", productSchema);
 export default ProductModel;
+
