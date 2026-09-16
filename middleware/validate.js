@@ -10,7 +10,10 @@ import {
 
 import { cartSchema, productIdSchema } from "../validation/cart.validations.js";
 
-import { changePasswordSchema } from "../validation/changePassword.validation.js";
+import { applyCouponSchema } from "../validation/coupon.validation.js";
+
+import { changePasswordSchema } from"../validation/changePassword.validation.js";
+
 import { updateProfileSchema } from "../validation/updateProfile.validation.js";
 
 import { searchProductsSchema } from "../validation/searchProducts.validation.js";
@@ -158,6 +161,25 @@ const validateProductId = (req, res, next) => {
   next();
 };
 
+const validateCoupon = (req, res, next) => {
+  const { error } = applyCouponSchema.validate(req.body, { abortEarly: false });
+
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+    return res.status(400).json({
+      success: false,
+      message: "Validation error",
+      errors: errorMessages,
+    });
+  }
+
+  next();
+};
+
+const validateProductId= (req, res, next) => {
+    const { error } = productIdSchema.validate(
+        req.params,
+        { abortEarly: false }
 const validateSearchProducts = (req, res, next) => {
     const { error } = searchProductsSchema.validate( req.query , { abortEarly: false }
     );
@@ -182,7 +204,6 @@ const validateWishlistProductId = (req, res, next) => {
 
   if (error) {
     const errorMessages = error.details.map((detail) => detail.message);
-
     return res.status(400).json({
       success: false,
       message: "Validation errors in data",
@@ -204,5 +225,6 @@ export {
   validateProductId,
   validateProduct,
   validateWishlistProductId,
-  validateSearchProducts
+  validateSearchProducts,
+  validateCoupon
 };
