@@ -9,11 +9,14 @@ import loginRouter from "./routes/login.routes.js";
 import forgotPasswordRouter from "./routes/forgotPassword.routes.js";
 import authRoutes from "./routes/sendRegisterOTP.routes.js";
 import verifyOtpRouter from "./routes/verifyRegisterOTP.routes.js";
+import cartRoutes from "./routes/carts.routes.js"
+import routerProduct from "./routes/product.routes.js";
 
 import changePasswordRouter from "./routes/changePassword.routes.js";
 import getProfileRouter from "./routes/getProfile.routes.js";
 import updateProfileRouter from "./routes/updateProfile.routes.js";
-import sortingPaginationRouter from "./routes/sortingPagination.routes.js";
+import wishlistRoutes from "./routes/wishlist.routes.js";
+
 
 const app = express();
 
@@ -30,11 +33,15 @@ app.use("/auth", loginRouter);
 app.use("/auth", forgotPasswordRouter);
 app.use("/auth", authRoutes);
 app.use("/auth", verifyOtpRouter);
+
+app.use('/',cartRoutes)
+
+app.use("/products", routerProduct);
 app.use("/auth", changePasswordRouter);
 app.use("/auth", getProfileRouter);
 app.use("/users", updateProfileRouter);
+app.use("/wishlist", wishlistRoutes);
 
-app.use(sortingPaginationRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
