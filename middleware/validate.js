@@ -144,22 +144,6 @@ const validateUpdateProfile = (req, res, next) => {
   next();
 };
 
-const validateProductId = (req, res, next) => {
-  const { error } = productIdSchema.validate(req.params, { abortEarly: false });
-
-  if (error) {
-    const errorMessages = error.details.map((detail) => detail.message);
-
-    return res.status(400).json({
-      success: false,
-      message: "Validation errors in data",
-      errors: errorMessages,
-    });
-  }
-
-  next();
-};
-
 const validateCoupon = (req, res, next) => {
   const { error } = applyCouponSchema.validate(req.body, { abortEarly: false });
 
@@ -175,26 +159,63 @@ const validateCoupon = (req, res, next) => {
   next();
 };
 
+// const validateProductId = (req, res, next) => {
+//   const { error } = productIdSchema.validate(req.params, { abortEarly: false });
+
+//   if (error) {
+//     const errorMessages = error.details.map((detail) => detail.message);
+
+//     return res.status(400).json({
+//       success: false,
+//       message: "Validation errors in data",
+//       errors: errorMessages,
+//     });
+//   }
+
+//   next();
+// };
+
+
+
+const validateProductId = (req, res, next) => {
+  const { error } = productIdSchema.validate(req.params, {
+    abortEarly: false,
+  });
+
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+
+    return res.status(400).json({
+      success: false,
+      message: errorMessages,
+    });
+  }
+
+  next();
+};
+
 // const validateProductId= (req, res, next) => {
 //     const { error } = productIdSchema.validate(
 //         req.params,
 //         { abortEarly: false }
 
 const validateSearchProducts = (req, res, next) => {
-    const { error } = searchProductsSchema.validate( req.query , { abortEarly: false }
-    );
+  const { error } = searchProductsSchema.validate(req.query, {
+    abortEarly: false,
+  });
 
-    if (error) {
-        const errorMessages = error.details.map( (detail) => detail.message);
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
 
-        return res.status(400).json({
-            success: false,
-            message: errorMessages
-        });
-    }
+    return res.status(400).json({
+      success: false,
+      message: errorMessages,
+    });
+  }
 
-    next();
-}; 
+  next();
+};
+
 
 //validation for wishlist
 const validateWishlistProductId = (req, res, next) => {
@@ -227,4 +248,4 @@ export {
   validateWishlistProductId,
   validateSearchProducts,
   validateCoupon
-};
+}
