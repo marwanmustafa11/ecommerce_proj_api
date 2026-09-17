@@ -9,7 +9,16 @@ const searchProductsSchema = Joi.object({
 
   minPrice: Joi.number().min(0).optional(),
   maxPrice: Joi.number().min(0).optional(),
-  rating: Joi.number().min(0).max(5).optional()
+  rating: Joi.number().min(0).max(5).optional(),
+
+  page: Joi.number().integer().min(1).optional(),
+  limit: Joi.number().integer().min(1).optional(),
+  sort: Joi.string().valid(
+    "price_asc",
+    "price_desc",
+    "rating",
+    "newest"
+  ).optional()
 
 });
 

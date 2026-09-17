@@ -56,6 +56,7 @@ app.use("/auth", getProfileRouter);
 app.use("/users", updateProfileRouter);
 app.use("/wishlist", wishlistRoutes);
 
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

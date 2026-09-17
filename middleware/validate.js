@@ -15,7 +15,6 @@ import { applyCouponSchema } from "../validation/coupon.validation.js";
 import { changePasswordSchema } from"../validation/changePassword.validation.js";
 
 import { updateProfileSchema } from "../validation/updateProfile.validation.js";
-
 import { searchProductsSchema } from "../validation/searchProducts.validation.js";
 //validation for wishlist
 import { wishlistProductIdSchema } from "../validation/wishlist.validation.js";
@@ -194,6 +193,11 @@ const validateProductId = (req, res, next) => {
 
   next();
 };
+
+// const validateProductId= (req, res, next) => {
+//     const { error } = productIdSchema.validate(
+//         req.params,
+//         { abortEarly: false }
 
 const validateSearchProducts = (req, res, next) => {
   const { error } = searchProductsSchema.validate(req.query, {

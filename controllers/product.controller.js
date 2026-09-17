@@ -4,6 +4,7 @@ import slugify from "slugify";
 // import { deleteFromCloudinary } from "../utils/uploadToCloudinary.js";
 // import deleteFromCloudinary from "../utils/deleteFromCloudinary.js";
 import uploadToCloudinary from "../utils/uploadToCloudinary.js";
+// import deleteFromCloudinary from "../utils/deleteFromCloudinary.js";
 import deleteFromCloudinary from "../utils/deleteFromCloudinary.js";
 
 const createProduct = async (req, res) => {
@@ -198,7 +199,7 @@ const searchProducts = async (req, res) => {
         $gte: Number(rating)
       };
     }
-
+    
     if (minPrice !== undefined || maxPrice !== undefined) {
       filter.price = {};
 
@@ -210,13 +211,39 @@ const searchProducts = async (req, res) => {
       }
     }
 
-    const products = await Product.find(filter);
+    
+   const { page = 1, limit = 10, sort } = req.query;
+   const skip = (page - 1) * limit;
+   let sortOption = {};
+
+   if (sort === "price_asc") {
+   sortOption.price = 1;
+  } else if (sort === "price_desc") {
+   sortOption.price = -1;
+  } else if (sort === "rating") {
+    sortOption.averageRating = -1;
+  } else if (sort === "newest") {
+   sortOption.createdAt = -1;
+  }
+
+ const totalResults = await Product.countDocuments(filter);
+ const totalPages = Math.ceil(totalResults / limit);
+ const products = await Product.find(filter)
+  .sort(sortOption)
+  .skip(skip)
+  .limit(Number(limit));
+  
     res.status(200).json({
       success: true,
       message: "Products found successfully",
+      totalResults,
+      totalPages,
+      page: Number(page),
+      limit: Number(limit),
       products,
-    });
-  }
+
+   });
+}
 
   catch (error) {
     res.status(500).json({
