@@ -1,6 +1,13 @@
 import Product from "../models/Product.model.js";
-import deleteFromCloudinary from "../utils/deleteFromCloudinary.js";
+// import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
+import slugify from "slugify";
+// import { deleteFromCloudinary } from "../utils/uploadToCloudinary.js";
+// import deleteFromCloudinary from "../utils/deleteFromCloudinary.js";
 import uploadToCloudinary from "../utils/uploadToCloudinary.js";
+// import deleteFromCloudinary from "../utils/deleteFromCloudinary.js";
+import deleteFromCloudinary from "../utils/deleteFromCloudinary.js";
+
+
 const createProduct = async (req, res) => {
   try {
     const productData = {
@@ -84,46 +91,73 @@ const updateProduct = async (req, res) => {
       });
     }
 
-    // Object.assign(product, req.body); //هفصل الصوره عن باقي الداتا
-
-     const { deletedImages, ...productData } = req.body
-     Object.assign(product, productData);
-
-
-     if (deletedImages) {
-      const imagesToDelete = JSON.parse(deletedImages);
-
-      await Promise.all(
-        imagesToDelete.map((publicId) => deleteFromCloudinary(publicId)),
-      );
-      product.images = product.images.filter(
-        (image)=> !imagesToDelete.includes(image.public_id)
-      )
+    // 1. تحديث الـ Slug لو الاسم اتغير (مفصول بشكل مستقل)
+    if (req.body.name) {
+      req.body.slug = slugify(req.body.name, { lower: true });
     }
 
+    // 2. معالجة حذف الصور المحددة من Cloudinary ومن MongoDB
+    if (req.body.deletedImagePublicIds) {
+      let idsToDelete = req.body.deletedImagePublicIds;
 
+      // لو جاية كـ JSON String أو كـ String مفصول بفاصلة
+      if (typeof idsToDelete === "string") {
+        try {
+          idsToDelete = JSON.parse(idsToDelete);
+        } catch (e) {
+          idsToDelete = idsToDelete.split(",").map((id) => id.trim());
+        }
+      }
+
+      if (Array.isArray(idsToDelete) && idsToDelete.length > 0) {
+        // حذف الصور بالتوازي من Cloudinary
+        await Promise.all(
+          idsToDelete.map((publicId) => deleteFromCloudinary(publicId))
+        );
+
+        // فلترة الصور المتبقية في MongoDB
+        product.images = product.images.filter(
+          (img) => !idsToDelete.includes(img.public_id.trim())
+        );
+      }
+    }
+
+    // 3. رفع الصور الجديدة فقط إذا تم إرسال ملفات حقيقية
     if (req.files && req.files.length > 0) {
-      const uploadedImages = await Promise.all(
-        req.files.map((file) => uploadToCloudinary(file.buffer)),
-      );
+      const validFiles = req.files.filter((file) => file.size > 0);
 
-      product.images.push(...uploadedImages);
+      if (validFiles.length > 0) {
+        const uploadedImages = await Promise.all(
+          validFiles.map((file) => uploadToCloudinary(file.buffer))
+        );
+
+        product.images.push(...uploadedImages);
+      }
     }
 
+    // 4. تحديث باقي البيانات النصية من req.body
+    const bodyData = { ...req.body };
+    delete bodyData.deletedImagePublicIds;
+    delete bodyData.deletedImages;
+
+    Object.assign(product, bodyData);
+
+    // 5. حفظ المنتج المحدث وإرسال الـ Response
     await product.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Product updated successfully",
       product,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 };
+
 
 const searchProducts = async (req, res) => {
   try {
@@ -166,7 +200,7 @@ const searchProducts = async (req, res) => {
         $gte: Number(rating)
       };
     }
-
+    
     if (minPrice !== undefined || maxPrice !== undefined) {
       filter.price = {};
 
@@ -178,13 +212,39 @@ const searchProducts = async (req, res) => {
       }
     }
 
-    const products = await Product.find(filter);
+    
+   const { page = 1, limit = 10, sort } = req.query;
+   const skip = (page - 1) * limit;
+   let sortOption = {};
+
+   if (sort === "price_asc") {
+   sortOption.price = 1;
+  } else if (sort === "price_desc") {
+   sortOption.price = -1;
+  } else if (sort === "rating") {
+    sortOption.averageRating = -1;
+  } else if (sort === "newest") {
+   sortOption.createdAt = -1;
+  }
+
+ const totalResults = await Product.countDocuments(filter);
+ const totalPages = Math.ceil(totalResults / limit);
+ const products = await Product.find(filter)
+  .sort(sortOption)
+  .skip(skip)
+  .limit(Number(limit));
+  
     res.status(200).json({
       success: true,
       message: "Products found successfully",
+      totalResults,
+      totalPages,
+      page: Number(page),
+      limit: Number(limit),
       products,
-    });
-  }
+
+   });
+}
 
   catch (error) {
     res.status(500).json({
@@ -193,7 +253,6 @@ const searchProducts = async (req, res) => {
     });
   }
 };
-
 
 
 
@@ -243,3 +302,4 @@ const deleteProduct = async (req, res, next) => {
 };
 
 export { createProduct, getAllProducts, getProductById, updateProduct, searchProducts, deleteProduct };
+
