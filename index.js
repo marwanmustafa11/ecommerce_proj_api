@@ -22,6 +22,8 @@ import changePasswordRouter from "./routes/changePassword.routes.js";
 import getProfileRouter from "./routes/getProfile.routes.js";
 import updateProfileRouter from "./routes/updateProfile.routes.js";
 import wishlistRoutes from "./routes/wishlist.routes.js";
+import  adminRoutes  from "./routes/admin.users.routes.js";
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,7 +58,7 @@ app.use("/auth", getProfileRouter);
 app.use("/users", updateProfileRouter);
 app.use("/wishlist", wishlistRoutes);
 
-
+app.use("/users",adminRoutes)
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
