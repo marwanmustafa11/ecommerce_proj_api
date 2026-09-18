@@ -1,7 +1,6 @@
 import Product from "../models/Product.model.js";
 import deleteFromCloudinary from "../utils/deleteFromCloudinary.js";
 import uploadToCloudinary from "../utils/uploadToCloudinary.js";
-import deleteFromCloudinary from "../utils/deleteFromCloudinary.js";
 const createProduct = async (req, res) => {
   try {
     const productData = {

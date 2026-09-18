@@ -20,6 +20,10 @@ import { searchProductsSchema } from "../validation/searchProducts.validation.js
 //validation for wishlist
 import { wishlistProductIdSchema } from "../validation/wishlist.validation.js";
 
+import {
+    updateRoleSchema,
+    userIdSchema
+} from "../validation/admin.users.validation.js";
 const validateSendForgotPasswordOtp = (req, res, next) => {
   const { error } = sendForgotPasswordOtpSchema.validate(req.body);
 
@@ -176,10 +180,6 @@ const validateCoupon = (req, res, next) => {
   next();
 };
 
-const validateProductId= (req, res, next) => {
-    const { error } = productIdSchema.validate(
-        req.params,
-        { abortEarly: false }
 const validateSearchProducts = (req, res, next) => {
     const { error } = searchProductsSchema.validate( req.query , { abortEarly: false }
     );
@@ -214,6 +214,37 @@ const validateWishlistProductId = (req, res, next) => {
   next();
 };
 
+
+const validateAdmin = (req, res, next) => {
+  const { error } = updateRoleSchema.validate(req.body, {
+    abortEarly: false,
+  });
+
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+    return res.status(400).json({
+      success: false,
+      message: "Validation errors in data",
+      errors: errorMessages,
+    });
+  }
+
+  next();
+};
+const validateUserId = (req, res, next) => {
+
+    const { error } = userIdSchema.validate(req.params);
+
+    if (error) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid User ID"
+        });
+    }
+
+    next();
+};
+
 export {
   validateSendForgotPasswordOtp,
   validateVerifyForgotPasswordOtp,
@@ -226,5 +257,7 @@ export {
   validateProduct,
   validateWishlistProductId,
   validateSearchProducts,
-  validateCoupon
+  validateCoupon,
+  validateAdmin,
+  validateUserId
 };
