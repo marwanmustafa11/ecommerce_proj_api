@@ -6,35 +6,52 @@ import {
     removeItem,
     clearCart
     } from "../controllers/cart.controller.js";
+import {
+    applyCoupon,
+    removeCoupon
+} from "../controllers/coupon.controller.js";
 import {protect} from "../middleware/auth.middleware.js"
 import { 
     validateCart,
-    validateProductId
+    validateProductId,
+    validateCoupon
 } from "../middleware/validate.js";
 const router=express.Router()
-router.post("/carts/items",
+router.post("/items",
     protect,
     validateCart,
     addItem
     
 )
-router.get("/carts",
+router.get("/",
     protect,
     getCart
     
 )
-router.patch("/carts/items",
+router.patch("/items",
     protect,
     validateCart,
     updateCart
 )
-router.delete("/carts/items/:productId",
+router.delete("/items/:productId",
     protect,
     validateProductId,
     removeItem
 )
-router.delete("/carts/clear",
+router.delete("/clear",
     protect,
     clearCart
 )
+
+// Apply & Remove coupon from cart
+router.post("/coupon",
+    protect,
+    validateCoupon,
+    applyCoupon
+);
+router.delete("/coupon",
+    protect,
+    removeCoupon
+);
+
 export default router;
