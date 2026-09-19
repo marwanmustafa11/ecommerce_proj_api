@@ -1,32 +1,32 @@
 import express from "express"
-import { 
+import {
     addItem,
     getCart,
     updateCart,
     removeItem,
     clearCart
-    } from "../controllers/cart.controller.js";
+} from "../controllers/cart.controller.js";
 import {
     applyCoupon,
     removeCoupon
 } from "../controllers/coupon.controller.js";
-import {protect} from "../middleware/auth.middleware.js"
-import { 
+import { protect } from "../middleware/auth.middleware.js"
+import {
     validateCart,
     validateProductId,
     validateCoupon
 } from "../middleware/validate.js";
-const router=express.Router()
+const router = express.Router()
 router.post("/items",
     protect,
     validateCart,
     addItem
-    
+
 )
 router.get("/",
     protect,
     getCart
-    
+
 )
 router.patch("/items",
     protect,
@@ -53,5 +53,9 @@ router.delete("/coupon",
     protect,
     removeCoupon
 );
+
+router.post('/order', protect, createOrder);
+router.patch('/order/:orderId/cancel', protect, cancelOrder);
+
 
 export default router;
