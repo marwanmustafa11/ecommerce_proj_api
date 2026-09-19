@@ -1,14 +1,20 @@
 import Order from "../models/Order.model.js";
 import Product from "../models/Product.model.js";
 import Cart from "../models/Cart.model.js";
+import mongoose from "mongoose";
 import { sendOrderConfirmationEmail } from "../utils/orderEmail.js";
 
 export const createOrder = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const userId = req.user._id;
-    const cart = await Cart.findOne({ user: userId });
+    const cart = await Cart.findOne({ user: userId }).session(session);
 
     if (!cart) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(404).json({
         success: false,
         message: "Cart not found",
@@ -16,6 +22,8 @@ export const createOrder = async (req, res) => {
     }
 
     if (cart.items.length == 0) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(404).json({
         success: false,
         message: "Cart is empty",
@@ -25,13 +33,27 @@ export const createOrder = async (req, res) => {
     const productIds = cart.items.map((item) => item.product);
     const products = await Product.find({
       _id: { $in: productIds },
-    });
+    }).session(session);
 
     if (cart.items.length != products.length) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(404).json({
         success: false,
         message: "One or more products in the cart no longer exist",
       });
+    }
+
+    for (const item of cart.items) {
+      const product = products.find((p) => p._id.equals(item.product));
+      if (!product || product.stock < item.quantity) {
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(400).json({
+          success: false,
+          message: `Insufficient stock for product: ${product ? product.name : "Unknown"}`,
+        });
+      }
     }
 
     const items = cart.items.map((item) => {
@@ -50,15 +72,15 @@ export const createOrder = async (req, res) => {
 
     const subtotal = cart.subtotal;
     const discount = cart.discountAmount;
-    const taxableAmount = cart.total; // السعر بعد الخصم
+    const taxableAmount = cart.total; 
 
     const shippingFee = subtotal > 1000 ? 0 : 50;
-    // حسبت الضريبة على السعر بعد الخصم
+    
     const tax = Number((taxableAmount * 0.14).toFixed(2));
 
     const totalPrice = tax + taxableAmount + shippingFee;
 
-    const order = await Order.create({
+    const order = await Order.create([{
       user: userId,
       items,
       shippingAddress: req.body.shippingAddress,
@@ -69,27 +91,40 @@ export const createOrder = async (req, res) => {
       discount,
       totalPrice,
       customerNote: req.body.customerNote,
-    });
+      orderStatus: "pending",
+    }], { session });
 
-    const orderWithUser = await Order.findById(order._id).populate("user");
-    try{
-      await sendOrderConfirmationEmail(orderWithUser)
-
-    }catch(error){
-      //رساله للباك اند يعرفه ان الايميل متبعتش لكن مش هياثر علي طلب الاوردر
-      console.error("Failed to send order confirmation email:", error.message);
+    for (const item of cart.items) {
+      await Product.findByIdAndUpdate(
+        item.product,
+        { $inc: { stock: -item.quantity } },
+        { session }
+      );
     }
 
-    cart.items = []; //هتتظبط لما الtransactionيتعمل 
+    cart.items = []; 
     cart.coupon = undefined;
-    await cart.save();
+    await cart.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    const orderWithUser = await Order.findById(order[0]._id).populate("user");
+    try{
+      await sendOrderConfirmationEmail(orderWithUser)
+    }catch(error){
+      console.error("Failed to send order confirmation email:", error.message);
+    }
 
     return res.status(201).json({
       success: true,
       message: "order created successfully",
-      order,
+      order: order[0],
     });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
     if (error.name === "ValidationError") {
       return res.status(400).json({
         success: false,
@@ -101,6 +136,73 @@ export const createOrder = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to create order",
+      error: error.message,
     });
+  }
+};
+
+
+
+
+
+
+
+
+export const cancelOrder = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { orderId } = req.params;
+    const userId = req.user._id;
+
+    const order = await Order.findOne({ _id: orderId }).session(session);
+
+    if (!order) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (order.orderStatus === "cancelled") {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({
+        success: false,
+        message: "Order is already cancelled",
+      });
+    }
+
+    for (const item of order.items) {
+      await Product.findByIdAndUpdate(
+        item.product,
+        { $inc: { stock: item.quantity } },
+        { session }
+      );
+    }
+
+    order.orderStatus = "cancelled";
+    await order.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.status(200).json({
+      success: true,
+      message: "Order cancelled successfully and stock restored",
+      order,
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to cancel order",
+      error: error.message,
+    });//mmmmmm
   }
 };
