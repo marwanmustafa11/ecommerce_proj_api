@@ -24,6 +24,7 @@ import updateProfileRouter from "./routes/updateProfile.routes.js";
 import wishlistRoutes from "./routes/wishlist.routes.js";
 
 import  adminRoutes  from "./routes/admin.users.routes.js";
+import revenueRouter from "./routes/revenue.routes.js";
 
  
 import ordersRouter from "./routes/orders.routes.js";
@@ -60,6 +61,8 @@ app.use("/auth", changePasswordRouter);
 app.use("/auth", getProfileRouter);
 app.use("/users", updateProfileRouter);
 app.use("/wishlist", wishlistRoutes);
+app.use("/users",adminRoutes);
+app.use("/admin", revenueRouter);
 app.use("/orders", ordersRouter);
 
 app.use("/users",adminRoutes)
