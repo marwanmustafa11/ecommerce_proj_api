@@ -19,10 +19,15 @@ import { searchProductsSchema } from "../validation/searchProducts.validation.js
 //validation for wishlist
 import { wishlistProductIdSchema } from "../validation/wishlist.validation.js";
 
+
 import {
     updateRoleSchema,
     userIdSchema
 } from "../validation/admin.users.validation.js";
+
+import { createOrderSchema } from "../validation/order.validation.js";
+
+
 const validateSendForgotPasswordOtp = (req, res, next) => {
   const { error } = sendForgotPasswordOtpSchema.validate(req.body);
 
@@ -238,6 +243,8 @@ const validateWishlistProductId = (req, res, next) => {
 };
 
 
+
+
 const validateAdmin = (req, res, next) => {
   const { error } = updateRoleSchema.validate(req.body, {
     abortEarly: false,
@@ -245,6 +252,7 @@ const validateAdmin = (req, res, next) => {
 
   if (error) {
     const errorMessages = error.details.map((detail) => detail.message);
+
     return res.status(400).json({
       success: false,
       message: "Validation errors in data",
@@ -254,19 +262,43 @@ const validateAdmin = (req, res, next) => {
 
   next();
 };
+
+
 const validateUserId = (req, res, next) => {
+  const { error } = userIdSchema.validate(req.params);
 
-    const { error } = userIdSchema.validate(req.params);
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid User ID"
+    });
+  }
 
-    if (error) {
-        return res.status(400).json({
-            success: false,
-            message: "Invalid User ID"
-        });
-    }
-
-    next();
+  next();
 };
+
+const validateCreateOrder = (req, res, next) => {
+  const { error } = createOrderSchema.validate(req.body, {
+    abortEarly: false,
+  });
+
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+
+    return res.status(400).json({
+      success: false,
+      message: "Validation errors in data",
+      errors: errorMessages,
+    });
+  }
+
+  next();
+};
+
+
+
+
+
 
 export {
   validateSendForgotPasswordOtp,
@@ -282,6 +314,9 @@ export {
   validateSearchProducts,
   validateCoupon,
   validateAdmin,
-  validateUserId
+  validateUserId,
+  validateCreateOrder
 };
 
+
+ 
