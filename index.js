@@ -65,7 +65,6 @@ app.use("/users",adminRoutes);
 app.use("/admin", revenueRouter);
 app.use("/orders", ordersRouter);
 
-app.use("/users",adminRoutes)
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

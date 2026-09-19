@@ -1,5 +1,7 @@
 import express from "express"
 
+import { createPaymentIntent } from '../controllers/order.payment.controller.js';
+
 import { protect } from "../middleware/auth.middleware.js"
 
 import { validateCreateOrder } from "../middleware/validate.js"
@@ -11,6 +13,10 @@ router.post("/" ,
     protect,
     validateCreateOrder,
     createOrder
+)
+router.post("/:id/pay" , 
+    protect,
+    createPaymentIntent
 )
 
 export default router;
