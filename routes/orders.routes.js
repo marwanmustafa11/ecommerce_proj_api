@@ -2,6 +2,8 @@ import express from "express";
 
 import { protect } from "../middleware/auth.middleware.js";
 import { adminOnly } from "../middleware/role.check.js";
+import { createPaymentIntent } from '../controllers/order.payment.controller.js';
+
 
 import {
   validateCreateOrder,
@@ -68,5 +70,14 @@ router.patch(
   cancelOrder
 );
 
+router.post("/" , 
+    protect,
+    validateCreateOrder,
+    createOrder
+)
+router.post("/:id/pay" , 
+    protect,
+    createPaymentIntent
+)
 
 export default router;
