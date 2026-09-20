@@ -28,6 +28,8 @@ import revenueRouter from "./routes/revenue.routes.js";
 
  
 import ordersRouter from "./routes/orders.routes.js";
+import dashboardRouter from "./routes/admin.dashboard.routes.js";
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -64,8 +66,10 @@ app.use("/wishlist", wishlistRoutes);
 app.use("/users",adminRoutes);
 app.use("/admin", revenueRouter);
 app.use("/orders", ordersRouter);
+app.use("/admin/dashboard", dashboardRouter);
 
 app.use("/users",adminRoutes)
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
