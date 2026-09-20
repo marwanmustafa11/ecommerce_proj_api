@@ -27,6 +27,48 @@ import {
 
 import { createOrderSchema } from "../validation/order.validation.js";
 
+import {
+  orderIdSchema,
+  updateOrderStatusSchema,
+} from "../validation/order.validation.js";
+
+
+// Validation للـ Order ID الموجود في params
+export const validateOrderId = (req, res, next) => {
+  const { error } = orderIdSchema.validate(
+    req.params,
+    { abortEarly: false }
+  );
+
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid Order ID",
+      errors: error.details.map((detail) => detail.message),
+    });
+  }
+
+  next();
+};
+
+// Validation لتغيير الـ Order Status
+export const validateUpdateOrderStatus = (req, res, next) => {
+  const { error } = updateOrderStatusSchema.validate(
+    req.body,
+    { abortEarly: false }
+  );
+
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid order status",
+      errors: error.details.map((detail) => detail.message),
+    });
+  }
+
+  next();
+};
+
 
 const validateSendForgotPasswordOtp = (req, res, next) => {
   const { error } = sendForgotPasswordOtpSchema.validate(req.body);
