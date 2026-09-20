@@ -29,6 +29,8 @@ import revenueRouter from "./routes/revenue.routes.js";
  
 import ordersRouter from "./routes/orders.routes.js";
 
+import orderRoutes from "./routes/orders.routes.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -64,6 +66,7 @@ app.use("/wishlist", wishlistRoutes);
 app.use("/users",adminRoutes);
 app.use("/admin", revenueRouter);
 app.use("/orders", ordersRouter);
+app.use("/orders", orderRoutes);
 
 app.use("/users",adminRoutes)
 app.listen(PORT, () => {
