@@ -70,19 +70,11 @@ router.patch(
   cancelOrder
 );
 
-router.post("/" , 
-    protect,
-    validateCreateOrder,
-    createOrder
-)
 router.post("/:id/pay" , 
     protect,
     createPaymentIntent
 )
-// router.post("/webhook" , 
-// express.raw({ type: "application/json" }),
-//   handleStripeWebhook
-// )
+
 
 
 export default router;

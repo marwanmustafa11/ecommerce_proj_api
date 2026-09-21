@@ -15,7 +15,7 @@ import { adminOnly } from "../middleware/role.check.js";
 import upload from "../middleware/upload.middleware.js";
 
 import {
-  validateProduct,
+  validate,
   validateSearchProducts,
 } from "../middleware/validate.js";
 
@@ -41,7 +41,7 @@ routerProduct.post(
   protect,
   adminOnly,
   upload.array("images", 10),
-  validateProduct(createProductValidation),
+  validate(createProductValidation),
   createProduct,
 );
 
@@ -51,7 +51,7 @@ routerProduct.put(
   protect,
   adminOnly,
   upload.array("images", 10),
-  validateProduct(updateProductValidation),
+  validate(updateProductValidation),
   updateProduct,
 );
 
