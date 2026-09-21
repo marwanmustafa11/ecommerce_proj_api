@@ -74,7 +74,7 @@ app.use("/auth", changePasswordRouter);
 app.use("/auth", getProfileRouter);
 app.use("/users", updateProfileRouter);
 app.use("/wishlist", wishlistRoutes);
-app.use("/users",adminRoutes);
+app.use("/admin", adminRoutes);
 app.use("/admin", revenueRouter);
 // app.use("/orders", ordersRouter);
 app.use("/orders", orderRoutes);

@@ -100,3 +100,105 @@ return res.status(500).json({
 }
 
 }
+
+import Cart from "../models/Cart.model.js";
+import Wishlist from "../models/Wishlist.model.js";
+
+
+export const getAllCarts = async (req, res) => {
+  try {
+    const carts = await Cart.find()
+      .populate("user", "username email phone")
+      .populate("items.product", "name price image");
+
+    return res.status(200).json({
+      success: true,
+      count: carts.length,
+      carts,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching carts",
+      error: error.message,
+    });
+  }
+};
+
+export const getAllWishlists = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const skip = (page - 1) * limit;
+
+    const total = await Wishlist.countDocuments();
+    const wishlists = await Wishlist.find()
+      .populate("user", "username email phone")
+      .populate("products", "name price image")
+      .skip(skip)
+      .limit(limit);
+
+    return res.status(200).json({
+      success: true,
+      pagination: {
+        total,
+        page,
+        pages: Math.ceil(total / limit),
+        limit,
+      },
+      wishlists,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching wishlists",
+      error: error.message,
+    });
+  }
+};
+
+export const getTopWishlistedProducts = async (req, res) => {
+  try {
+    const topProducts = await Wishlist.aggregate([
+      { $unwind: "$products" },
+      {
+        $group: {
+          _id: "$products",
+          wishlistCount: { $sum: 1 },
+        },
+      },
+      { $sort: { wishlistCount: -1 } },
+      { $limit: 10 },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      { $unwind: "$productDetails" },
+      {
+        $project: {
+          _id: "$productDetails._id",
+          name: "$productDetails.name",
+          price: "$productDetails.price",
+          image: "$productDetails.image",
+          wishlistCount: 1,
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      count: topProducts.length,
+      topProducts,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching top wishlisted products",
+      error: error.message,
+    });
+  }
+};
