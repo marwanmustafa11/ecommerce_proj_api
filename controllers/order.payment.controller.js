@@ -29,7 +29,6 @@ export const createPaymentIntent = async (req, res) => {
     const amount = order.totalPrice || order.totalOrderPrice || order.total || order.totalAmount;
 
     if (!amount || isNaN(amount)) {
-      console.log("Order Object:", order);
       return res.status(400).json({ 
         message: "Invalid order amount. Check if order has totalPrice property.",
         receivedOrder: order 

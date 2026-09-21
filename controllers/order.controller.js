@@ -182,8 +182,7 @@ export const createOrder = async (req, res) => {
 };
 
 
-// Task 22
-// Cancel Order + Restore Stock
+ 
 export const cancelOrder = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -238,6 +237,7 @@ export const cancelOrder = async (req, res) => {
 
     // تغيير حالة الـ Order
     order.status = "cancelled";
+    order.paymentStatus ="cancelled";
     order.cancelledAt = new Date();
 
     await order.save({ session });
@@ -263,8 +263,7 @@ export const cancelOrder = async (req, res) => {
   }
 };
 
-
-// Task 26 - Admin: Get All Orders
+ 
 export const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
@@ -288,7 +287,7 @@ export const getAllOrders = async (req, res) => {
 };
 
 
-// Task 26 - Admin: Get Order By ID
+ 
 export const getOrderById = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -318,8 +317,7 @@ export const getOrderById = async (req, res) => {
   }
 };
 
-
-// Task 26 - Admin: Update Order Status
+ 
 export const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;

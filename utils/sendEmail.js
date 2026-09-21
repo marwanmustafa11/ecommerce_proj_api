@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
-// SMTP = Simple Mail Transfer Protocol
+ 
 const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST, // هكلم أنهي Mail Server
+    host: process.env.EMAIL_HOST, 
     port: process.env.EMAIL_PORT,
     secure: false,
     auth: {
@@ -9,8 +9,7 @@ const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASS,
     }
 });
-// 465 → secure: true
-// 587 → secure: false
+ 
 const sendEmail = async (to, subject, text) => {
     const info = await transporter.sendMail({
         from: process.env.EMAIL_USER,
@@ -19,7 +18,6 @@ const sendEmail = async (to, subject, text) => {
         text,
     });
 
-    console.log("Email sent successfully:", info.messageId);
 };
 
 export default sendEmail;

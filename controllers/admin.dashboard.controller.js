@@ -1,6 +1,6 @@
 import { getTotalCustomers } from "../utils/customerAnalytics.js"; 
 import { getRevenueData } from "./revenue.controller.js";  
-import {getOrdersByStatus,getTopSellingProducts,getDailyRevenueLast7Days,getRecentOrders,} from "../utils/orderStats.js";
+import {getOrdersByStatus,getTopSellingProducts,getDailyRevenueLast7Days,getRecentOrders} from "../utils/orderStats.js";
 
   export const getDashboard = async (req, res) => {
    try {

@@ -28,7 +28,7 @@ import  adminRoutes  from "./routes/admin.users.routes.js";
 import revenueRouter from "./routes/revenue.routes.js";
 
  
-// import ordersRouter from "./routes/orders.routes.js";
+
 import dashboardRouter from "./routes/admin.dashboard.routes.js";
 import { handleStripeWebhook } from "./controllers/order.webhook.controller.js";
 
@@ -49,9 +49,6 @@ app.post(
 
 
 app.use(express.json());
-
-// يخدم صفحة الفرونت اند من نفس الأوريجن بتاع الـ API
-// (بيحل مشاكل الكوكيز/الـ CORS أثناء التجربة، وبيخليك تفتح http://localhost:PORT مباشرة)
 app.use(express.static(path.join(__dirname, "frontend")));
 
 const PORT = process.env.PORT || 3000;
@@ -76,7 +73,6 @@ app.use("/users", updateProfileRouter);
 app.use("/wishlist", wishlistRoutes);
 app.use("/users",adminRoutes);
 app.use("/admin", revenueRouter);
-// app.use("/orders", ordersRouter);
 app.use("/orders", orderRoutes);
 app.use("/admin/dashboard", dashboardRouter);
 
