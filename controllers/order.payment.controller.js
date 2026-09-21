@@ -26,10 +26,17 @@ export const createPaymentIntent = async (req, res) => {
         message: "This order is already paid",
       });
     }
+    const amount = order.totalPrice || order.totalOrderPrice || order.total || order.totalAmount;
 
-    const amount = order.totalPrice || order.totalOrderPrice || order.total;
+    if (!amount || isNaN(amount)) {
+      console.log("Order Object:", order);
+      return res.status(400).json({ 
+        message: "Invalid order amount. Check if order has totalPrice property.",
+        receivedOrder: order 
+      });
+    }
+
     const amountInCents = Math.round(amount * 100);
-
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,

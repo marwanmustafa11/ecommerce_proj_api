@@ -3,6 +3,7 @@ import express from "express";
 import { protect } from "../middleware/auth.middleware.js";
 import { adminOnly } from "../middleware/role.check.js";
 import { createPaymentIntent } from '../controllers/order.payment.controller.js';
+// import { handleStripeWebhook } from "../controllers/order.webhook.controller.js";
 
 
 import {
@@ -18,7 +19,6 @@ import {
   updateOrderStatus,
   cancelOrder,
 } from "../controllers/order.controller.js";
-
 const router = express.Router();
 
 
@@ -79,5 +79,10 @@ router.post("/:id/pay" ,
     protect,
     createPaymentIntent
 )
+// router.post("/webhook" , 
+// express.raw({ type: "application/json" }),
+//   handleStripeWebhook
+// )
+
 
 export default router;
