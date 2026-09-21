@@ -1,7 +1,6 @@
 import Cart from "../models/Cart.model.js";
 import { getCouponByCode } from "../utils/couponHelpers.js";
 
-// POST /carts/coupon
 
 export const applyCoupon = async (req, res) => {
     try {
@@ -49,14 +48,13 @@ export const applyCoupon = async (req, res) => {
             items: cart.items,
         });
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: error.message || "Internal server error"
         });
     }
 }
-/////////////////////////////////////////
-// DELETE /carts/coupon
+ 
 
 export const removeCoupon = async (req, res) => {
     try {
@@ -72,7 +70,7 @@ export const removeCoupon = async (req, res) => {
         cart.coupon = undefined;
         await cart.save();
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: "Coupon removed successfully",
             itemCount: cart.itemCount,
@@ -83,7 +81,7 @@ export const removeCoupon = async (req, res) => {
             items: cart.items,
         });
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: error.message || "Internal server error"
         });

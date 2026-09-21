@@ -2,7 +2,7 @@
 import Product from "../models/Product.model.js";
 import Cart from "../models/Cart.model.js";
 
-// 1. Add Item to Cart
+ 
 export const addItem = async (req, res) => {
   const { productId, quantity } = req.body;
   const userId = req.user._id;
@@ -65,7 +65,7 @@ export const addItem = async (req, res) => {
   });
 };
 
-// 2. Get Cart
+ 
 export const getCart = async (req, res) => {
   let cart = await Cart.findOne({ user: req.user._id });
 
@@ -87,7 +87,7 @@ export const getCart = async (req, res) => {
   });
 };
 
-// 3. Update Cart Item Quantity
+ 
 export const updateCart = async (req, res) => {
   const { productId, quantity } = req.body;
 
@@ -144,7 +144,7 @@ export const updateCart = async (req, res) => {
   });
 };
 
-// 4. Remove Item from Cart
+ 
 export const removeItem = async (req, res) => {
   const cart = await Cart.findOne({
     user: req.user._id,
@@ -187,7 +187,7 @@ export const removeItem = async (req, res) => {
   });
 };
 
-// 5. Clear Cart
+ 
 export const clearCart = async (req, res) => {
   const cart = await Cart.findOne({
     user: req.user._id,
