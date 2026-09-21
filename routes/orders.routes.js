@@ -18,6 +18,8 @@ import {
   getOrderById,
   updateOrderStatus,
   cancelOrder,
+  getMyOrders,
+  getMyOrderById,
 } from "../controllers/order.controller.js";
 const router = express.Router();
 
@@ -63,17 +65,31 @@ router.patch(
 
 // Admin: Cancel Order
 router.patch(
-  "/admin/:orderId/cancel",
+  "/my/:orderId/cancel",
   protect,
-  adminOnly,
   validateOrderId,
   cancelOrder
 );
+
 
 router.post("/:id/pay" , 
     protect,
     createPaymentIntent
 )
+
+
+router.get(
+  "/my",
+  protect,
+  getMyOrders
+);
+
+router.get(
+  "/my/:orderId",
+  protect,
+  validateOrderId,
+  getMyOrderById
+);
 
 
 
