@@ -18,6 +18,8 @@ import {
   getOrderById,
   updateOrderStatus,
   cancelOrder,
+  getMyOrders,
+  getMyOrderById,
 } from "../controllers/order.controller.js";
 const router = express.Router();
 
@@ -63,22 +65,32 @@ router.patch(
 
 // Admin: Cancel Order
 router.patch(
-  "/admin/:orderId/cancel",
+  "/my/:orderId/cancel",
   protect,
-  adminOnly,
   validateOrderId,
   cancelOrder
 );
 
-router.post("/" , 
-    protect,
-    validateCreateOrder,
-    createOrder
-)
+
 router.post("/:id/pay" , 
     protect,
     createPaymentIntent
 )
+
+
+router.get(
+  "/my",
+  protect,
+  getMyOrders
+);
+
+router.get(
+  "/my/:orderId",
+  protect,
+  validateOrderId,
+  getMyOrderById
+);
+
 // router.post("/webhook" , 
 // express.raw({ type: "application/json" }),
 //   handleStripeWebhook
