@@ -95,7 +95,7 @@ export const getDailyRevenueLast7Days = async () => {
         });
     }
 
-    return days;
+    return days.reverse();
 };
 //////////////////////////////////////////////////////
 // 4) Recent Orders
