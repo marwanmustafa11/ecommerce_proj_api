@@ -229,7 +229,6 @@ export const cancelOrder = async (req, res) => {
     }
 
     order.status = "cancelled";
-    order.paymentStatus ="cancelled";
     order.cancelledAt = new Date();
 
     await order.save({ session });
