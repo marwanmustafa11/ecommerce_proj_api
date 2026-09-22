@@ -64,14 +64,14 @@ app.use("/auth", authRoutes);
 app.use("/auth", verifyOtpRouter);
 app.use("/auth", logoutRouter);
 
-app.use('/carts',cartRoutes)
+app.use('/carts',cartRoutes);
 
 app.use("/products", routerProduct);
 app.use("/auth", changePasswordRouter);
 app.use("/auth", getProfileRouter);
 app.use("/users", updateProfileRouter);
 app.use("/wishlist", wishlistRoutes);
-app.use("/users",adminRoutes);
+app.use("/admin", adminRoutes);
 app.use("/admin", revenueRouter);
 app.use("/orders", orderRoutes);
 app.use("/admin/dashboard", dashboardRouter);
