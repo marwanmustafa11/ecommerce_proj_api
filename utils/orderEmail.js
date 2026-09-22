@@ -1,4 +1,6 @@
 import sendEmail from "./sendEmail.js";
+
+
 const sendOrderConfirmationEmail = async (order) =>
 {
     const to = order.user.email;
@@ -20,7 +22,6 @@ const sendOrderConfirmationEmail = async (order) =>
             `;
     await sendEmail(to, subject, text);
 };
-
 
 const sendOrderStatusEmail = async (order) =>
 {

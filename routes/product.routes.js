@@ -26,16 +26,13 @@ import {
 
 const routerProduct = express.Router();
 
-// Get All Products
+ 
 routerProduct.get("/", getAllProducts);
 
 routerProduct.get("/search", validateSearchProducts, searchProducts);
-
-// Get Product By ID
+ 
 routerProduct.get("/:id", getProductById);
 
-
-// Create Product
 routerProduct.post(
   "/",
   protect,
@@ -45,7 +42,6 @@ routerProduct.post(
   createProduct,
 );
 
-// Update Product
 routerProduct.put(
   "/update/:id",
   protect,
@@ -55,7 +51,6 @@ routerProduct.put(
   updateProduct,
 );
 
-// Delete Product
 routerProduct.delete(
   "/:id",
   protect,

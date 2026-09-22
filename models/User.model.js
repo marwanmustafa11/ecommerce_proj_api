@@ -57,7 +57,7 @@ const userSchema = new mongoose.Schema({
     }],
     wishlist:[{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"Product" ///////// اسم الموديل بتاع ال product
+        ref:"Product" 
         
     }],
     isVerified:{
@@ -79,7 +79,7 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre('save' , async function () {
     
-    if (!this.isModified('password')) return // لو التعديل في حاجه تانيه غير الباسوورد اخرج متعملش تشفير
+    if (!this.isModified('password')) return  
     this.password = await bcrypt.hash(this.password, 10);
 })
 

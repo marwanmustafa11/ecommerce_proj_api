@@ -1,10 +1,6 @@
 import Product from "../models/Product.model.js";
-// import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
 import slugify from "slugify";
-// import { deleteFromCloudinary } from "../utils/uploadToCloudinary.js";
-// import deleteFromCloudinary from "../utils/deleteFromCloudinary.js";
 import uploadToCloudinary from "../utils/uploadToCloudinary.js";
-// import deleteFromCloudinary from "../utils/deleteFromCloudinary.js";
 import deleteFromCloudinary from "../utils/deleteFromCloudinary.js";
 
 
@@ -25,13 +21,13 @@ const createProduct = async (req, res) => {
 
     const product = await Product.create(productData);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Product created successfully",
       product,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -50,7 +46,7 @@ const getAllProducts = async (req, res) => {
       products,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -73,7 +69,7 @@ const getProductById = async (req, res) => {
       product,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -90,17 +86,14 @@ const updateProduct = async (req, res) => {
         message: "Product not found",
       });
     }
-
-    // 1. تحديث الـ Slug لو الاسم اتغير (مفصول بشكل مستقل)
+ 
     if (req.body.name) {
       req.body.slug = slugify(req.body.name, { lower: true });
     }
-
-    // 2. معالجة حذف الصور المحددة من Cloudinary ومن MongoDB
+ 
     if (req.body.deletedImagePublicIds) {
       let idsToDelete = req.body.deletedImagePublicIds;
 
-      // لو جاية كـ JSON String أو كـ String مفصول بفاصلة
       if (typeof idsToDelete === "string") {
         try {
           idsToDelete = JSON.parse(idsToDelete);
@@ -110,19 +103,16 @@ const updateProduct = async (req, res) => {
       }
 
       if (Array.isArray(idsToDelete) && idsToDelete.length > 0) {
-        // حذف الصور بالتوازي من Cloudinary
         await Promise.all(
           idsToDelete.map((publicId) => deleteFromCloudinary(publicId))
         );
 
-        // فلترة الصور المتبقية في MongoDB
         product.images = product.images.filter(
           (img) => !idsToDelete.includes(img.public_id.trim())
         );
       }
     }
-
-    // 3. رفع الصور الجديدة فقط إذا تم إرسال ملفات حقيقية
+ 
     if (req.files && req.files.length > 0) {
       const validFiles = req.files.filter((file) => file.size > 0);
 
@@ -135,14 +125,12 @@ const updateProduct = async (req, res) => {
       }
     }
 
-    // 4. تحديث باقي البيانات النصية من req.body
     const bodyData = { ...req.body };
     delete bodyData.deletedImagePublicIds;
     delete bodyData.deletedImages;
 
     Object.assign(product, bodyData);
 
-    // 5. حفظ المنتج المحدث وإرسال الـ Response
     await product.save();
 
     return res.status(200).json({
@@ -157,7 +145,6 @@ const updateProduct = async (req, res) => {
     });
   }
 };
-
 
 const searchProducts = async (req, res) => {
   try {
@@ -247,18 +234,14 @@ const searchProducts = async (req, res) => {
 }
 
   catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 };
 
-
-
-
-
-const deleteProduct = async (req, res, next) => {
+const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -294,12 +277,19 @@ const deleteProduct = async (req, res, next) => {
       message: 'Product and all associated images deleted successfully',
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 };
 
-export { createProduct, getAllProducts, getProductById, updateProduct, searchProducts, deleteProduct };
+export { 
+  createProduct, 
+  getAllProducts, 
+  getProductById, 
+  updateProduct, 
+  searchProducts, 
+  deleteProduct 
+};
 
