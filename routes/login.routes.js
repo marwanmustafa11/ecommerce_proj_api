@@ -6,6 +6,7 @@ import { adminOnly } from "../middleware/role.check.js";
 import { 
     validateAdmin
 } from "../middleware/validate.js";
+import { adminTest } from "../controllers/admin.users.controllers.js";
 const router = express.Router();
 
 router.post("/login", login )
@@ -14,5 +15,10 @@ router.patch("/change-role",
     adminOnly,
     validateAdmin,
     updateUserRole
+)
+router.get("/admin-test",
+    protect,
+    adminOnly,
+    adminTest
 )
 export default router;

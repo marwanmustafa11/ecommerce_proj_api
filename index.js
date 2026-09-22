@@ -18,7 +18,7 @@ import verifyOtpRouter from "./routes/verifyRegisterOTP.routes.js";
 import cartRoutes from "./routes/carts.routes.js"
 import routerProduct from "./routes/product.routes.js";
 import logoutRouter from "./routes/logout.routes.js";
-
+import adminTestRoutes from "./routes/login.routes.js"
 import changePasswordRouter from "./routes/changePassword.routes.js";
 import getProfileRouter from "./routes/getProfile.routes.js";
 import updateProfileRouter from "./routes/updateProfile.routes.js";
@@ -63,7 +63,7 @@ app.use("/auth", forgotPasswordRouter);
 app.use("/auth", authRoutes);
 app.use("/auth", verifyOtpRouter);
 app.use("/auth", logoutRouter);
-
+app.use("/auth",adminTestRoutes)
 app.use('/carts',cartRoutes);
 
 app.use("/products", routerProduct);
