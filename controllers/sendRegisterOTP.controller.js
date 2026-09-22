@@ -4,8 +4,7 @@ import OTP from '../models/OTP.model.js';
 import sendEmail from '../utils/sendEmail.js';
 import bcrypt from "bcrypt";
 import { encrypt } from "../utils/encryption.js";
-
-// POST /register (Send OTP)
+ 
 
 export const register = async (req, res) => {
   try {
@@ -34,7 +33,7 @@ export const register = async (req, res) => {
     await OTP.create({
       email: email.toLowerCase(),
       otp: hashedOtp,
-      expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 دقائق
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000),  
       type: "register",
       userData: { 
         username, 
@@ -54,7 +53,6 @@ const subject = 'Account Activation OTP';
     });
 
   } catch (error) {
-    console.error('Register Error:', error);
     return res.status(500).json({
       success: false,
       message: 'An error occurred on the server while sending the verification code',

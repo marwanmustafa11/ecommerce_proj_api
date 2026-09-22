@@ -31,6 +31,13 @@ import {
 
 const routerProduct = express.Router();
 
+ 
+routerProduct.get("/", getAllProducts);
+
+routerProduct.get("/search", validateSearchProducts, searchProducts);
+ 
+routerProduct.get("/:id", getProductById);
+
 routerProduct.get("/", getAllProducts);
 
 routerProduct.get("/search", validateSearchProducts, searchProducts);

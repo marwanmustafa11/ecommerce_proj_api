@@ -10,7 +10,6 @@ const ORDER_STATUSES = [
     "returned",
 ];
 
-//1) Orders By Status
 export const getOrdersByStatus = async () => {
     const results = await Order.aggregate([
         {
@@ -29,8 +28,7 @@ export const getOrdersByStatus = async () => {
     });
     return statusCounts;
 };
-////////////////////////////////////////////////////
-//2) Top 5 Best-Selling Products
+ 
 export const getTopSellingProducts = async (limit = 5) => {
     const result = await Order.aggregate([
         { $match: { status: { $nin: ["cancelled", "returned"] } } },
@@ -51,8 +49,7 @@ export const getTopSellingProducts = async (limit = 5) => {
 
     return result;
 }
-/////////////////////////////////////////////////////
-// 3) Daily Revenue - Last 7 Days
+ 
 export const getDailyRevenueLast7Days = async () => {
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
@@ -97,8 +94,7 @@ export const getDailyRevenueLast7Days = async () => {
 
     return days.reverse();
 };
-//////////////////////////////////////////////////////
-// 4) Recent Orders
+ 
 export const getRecentOrders = async (limit = 5) => {
     const orders = await Order.find({})
     .sort({ createdAt: -1 })

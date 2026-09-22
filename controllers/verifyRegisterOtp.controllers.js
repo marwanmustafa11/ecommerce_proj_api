@@ -44,15 +44,14 @@ const verifyRegisterOtp =async (req,res) => {
         })
         return res.status(201).json({
             success: true,
-            message:"Account verified successfull",
+            message:"Account verified successfully",
             user
         })
     }
     catch(e){
-        console.error("Error while verify Otp",e);
         return res.status(500).json({
             success: false,
-            message:"Account verified Failed",
+            message:"Account verification Failed",
             error:e.message
         })
     }

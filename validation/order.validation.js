@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-// Create Order
+ 
 export const createOrderSchema = Joi.object({
   shippingAddress: Joi.object({
     fullName: Joi.string().trim().required(),
@@ -20,7 +20,7 @@ export const createOrderSchema = Joi.object({
     .allow("", null),
 });
 
-// Order ID
+ 
 export const orderIdSchema = Joi.object({
   orderId: Joi.string()
     .hex()
@@ -34,7 +34,7 @@ export const orderIdSchema = Joi.object({
     }),
 });
 
-// Update Order Status
+ 
 export const updateOrderStatusSchema = Joi.object({
   status: Joi.string()
     .valid(

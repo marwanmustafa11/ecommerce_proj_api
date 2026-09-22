@@ -1,4 +1,3 @@
-// import User  from "../models/User.model.js";
 export const getProfile = async (req, res) => {
     try {
         return res.status(200).json({
