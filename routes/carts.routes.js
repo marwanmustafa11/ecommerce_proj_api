@@ -61,7 +61,6 @@ router.delete(
   clearCart
 );
 
-// Apply & Remove coupon from cart
 router.post(
   "/coupon",
   protect,

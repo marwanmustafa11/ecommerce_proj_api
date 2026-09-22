@@ -5,7 +5,6 @@ const orderSchema = new mongoose.Schema({
          ref: 'User',
         required: true,
 },
-
   items: [{
     product:{
             type: mongoose.Schema.Types.ObjectId,
@@ -63,61 +62,41 @@ const orderSchema = new mongoose.Schema({
       enum: ['cash','stripe','paypal','paymob'],
       default: 'cash',
     },
-
     paymentStatus: {
       type: String,
       enum: ['pending','paid','failed','refunded'],
       default: 'pending',
     },
-    
-    paymentMethod: {
-      type: String,
-      enum: ['cash','stripe','paypal','paymob'],
-      default: 'cash',
-    },
-
     stripePaymentIntentId: {
       type: String,
     },
-
     transactionId: {
       type: String,
     },
-
-    transactionId: {
-      type: String,
-    },
-
     subtotal: {
       type: Number,
       required: true,
       min: 0
     },
-
     shippingFee: {
       type: Number,
       default:0,
     },
-  
     tax: {
       type: Number,
     },
-
     discount: {
       type: Number,
     },
-
     totalPrice: {
       type: Number,
       required: true,
     },
-
 status: {
       type: String,
       enum: ['pending','confirmed','processing','shipped','delivered','cancelled','returned'],
       default: 'pending'
     },
-
     paidAt: {
       type: Date,
     },
@@ -127,12 +106,10 @@ status: {
     cancelledAt: {
       type: Date,
     },
-
     customerNote: {
       type: String,
       maxlength: 1000,
     },
-
     adminNote: {
       type: String,
       maxlength: 1000,

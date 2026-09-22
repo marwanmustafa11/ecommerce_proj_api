@@ -51,8 +51,7 @@ router.get(
   getOrderById
 );
 
-
-// Admin: Update Order Status
+ 
 router.patch(
   "/admin/:orderId/status",
   protect,
@@ -62,8 +61,6 @@ router.patch(
   updateOrderStatus
 );
 
-
-// Admin: Cancel Order
 router.patch(
   "/my/:orderId/cancel",
   protect,
@@ -71,12 +68,10 @@ router.patch(
   cancelOrder
 );
 
-
 router.post("/:id/pay" , 
     protect,
     createPaymentIntent
 )
-
 
 router.get(
   "/my",

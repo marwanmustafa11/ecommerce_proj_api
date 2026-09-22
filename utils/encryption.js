@@ -1,15 +1,15 @@
 import crypto from "crypto";
 
-const algorithm = "aes-256-gcm";  //طريقه التشفير اللي هستخدمها
-const key = Buffer.from(process.env.ENCRYPTION_KEY, "hex"); // هات المفتاح اللي مكتوب فال انفايرومينت و استعمله كنص هيكس و حوله بافير علشان يحتوي على بايت علشان الكريبتو يقدر يستعمله
+const algorithm = "aes-256-gcm";   
+const key = Buffer.from(process.env.ENCRYPTION_KEY, "hex");  
 
 const encrypt = (text) => {
-    const iv = crypto.randomBytes(16); //نص عشوائي
+    const iv = crypto.randomBytes(16);  
 
-    const cipher = crypto.createCipheriv(algorithm, key, iv); //يا كريبتز اعملي اداه تشفير باستخدام التلاته دول و خزنهالي في المتغير دا 
+    const cipher = crypto.createCipheriv(algorithm, key, iv);  
 
-    let encrypted = cipher.update(text, "utf8", "hex"); //الـ text اللي داخل ده نص UTF-8.
-    encrypted += cipher.final("hex"); //الناتج المشفّر اللي خارج، مثّله كـ Hex.
+    let encrypted = cipher.update(text, "utf8", "hex"); 
+    encrypted += cipher.final("hex");  
 
     const authTag = cipher.getAuthTag();
 

@@ -2,12 +2,6 @@ import Joi from "joi";
 
 const sendForgotPasswordOtpSchema = Joi.object
 ({
-    /* 
-    عايز اعمل سكيما لبيانات من النوع اوبجكت و دا فعلا علشان
-    {
-    "email": "john@example.com"
-    }
-    */
     email:
         Joi.string()
         .email()

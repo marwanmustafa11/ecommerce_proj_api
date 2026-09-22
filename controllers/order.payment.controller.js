@@ -26,7 +26,7 @@ export const createPaymentIntent = async (req, res) => {
         message: "This order is already paid",
       });
     }
-    const amount = order.totalPrice || order.totalOrderPrice || order.total || order.totalAmount;
+    const amount = order.totalPrice 
 
     if (!amount || isNaN(amount)) {
       return res.status(400).json({ 

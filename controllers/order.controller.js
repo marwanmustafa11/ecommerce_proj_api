@@ -40,7 +40,6 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    // جلب المنتجات الموجودة في الـ Cart
     const productIds = cart.items.map((item) => item.product);
 
     const products = await Product.find({
@@ -57,7 +56,6 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    // التأكد إن الـ stock كافي
     for (const item of cart.items) {
       const product = products.find((p) =>
         p._id.equals(item.product)
@@ -76,7 +74,6 @@ export const createOrder = async (req, res) => {
       }
     }
 
-    // تجهيز Items الخاصة بالـ Order
     const items = cart.items.map((item) => {
       const product = products.find((product) =>
         product._id.equals(item.product)
@@ -97,12 +94,10 @@ export const createOrder = async (req, res) => {
 
     const shippingFee = subtotal > 1000 ? 0 : 50;
 
-    // حساب الضريبة على السعر بعد الخصم
     const tax = Number((taxableAmount * 0.14).toFixed(2));
 
     const totalPrice = tax + taxableAmount + shippingFee;
 
-    // إنشاء الـ Order
     const order = await Order.create(
       [
         {
@@ -122,7 +117,7 @@ export const createOrder = async (req, res) => {
       { session }
     );
 
-    // خصم الـ stock بعد إنشاء الـ Order
+ 
     for (const item of cart.items) {
       await Product.findByIdAndUpdate(
         item.product,
@@ -131,17 +126,17 @@ export const createOrder = async (req, res) => {
       );
     }
 
-    // تفريغ الـ Cart
+ 
     cart.items = [];
     cart.coupon = undefined;
 
     await cart.save({ session });
 
-    // إنهاء الـ Transaction
+ 
     await session.commitTransaction();
     session.endSession();
 
-    // إرسال Confirmation Email
+ 
     const orderWithUser = await Order.findById(order[0]._id)
       .populate("user");
 
@@ -205,7 +200,6 @@ export const cancelOrder = async (req, res) => {
       });
     }
 
-    // التأكد إن الطلب لم يتم إلغاؤه بالفعل
     if (order.status === "cancelled") {
       await session.abortTransaction();
       session.endSession();
@@ -216,7 +210,6 @@ export const cancelOrder = async (req, res) => {
       });
     }
 
-    // الإلغاء مسموح فقط في pending أو confirmed
     if (!["pending", "confirmed"].includes(order.status)) {
       await session.abortTransaction();
       session.endSession();
@@ -246,6 +239,7 @@ export const cancelOrder = async (req, res) => {
     }
 
     // استرجاع الـ stock
+ 
     for (const item of order.items) {
       await Product.findByIdAndUpdate(
         item.product,
@@ -254,7 +248,6 @@ export const cancelOrder = async (req, res) => {
       );
     }
 
-    // تغيير حالة الـ Order
     order.status = "cancelled";
     order.cancelledAt = new Date();
 
@@ -341,7 +334,7 @@ export const updateOrderStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
 
-    // جلب الـ Order مع بيانات الـ User
+ 
     const order = await Order.findById(orderId)
       .populate("user");
 
@@ -354,15 +347,14 @@ export const updateOrderStatus = async (req, res) => {
 
     const currentStatus = order.status;
 
-    // منع تغيير الـ Order لنفس الـ Status
+   
     if (currentStatus === status) {
       return res.status(400).json({
         success: false,
         message: `Order is already ${status}`,
       });
     }
-
-    // الـ Status transitions المسموحة
+ 
     const allowedTransitions = {
       pending: ["confirmed"],
       confirmed: ["processing"],
@@ -373,7 +365,7 @@ export const updateOrderStatus = async (req, res) => {
       returned: [],
     };
 
-    // التأكد إن الـ transition مسموح
+   
     if (!allowedTransitions[currentStatus].includes(status)) {
       return res.status(400).json({
         success: false,
@@ -381,22 +373,20 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
 
-    // تغيير الـ Status
+  
     order.status = status;
 
-    // تسجيل وقت التسليم
+ 
     if (status === "delivered") {
       order.deliveredAt = new Date();
     }
 
     await order.save();
-
-        // Task 25 - إرسال Email
-    // بنستخدم الـ function الموجودة بالفعل
-        try {
+ 
+      try {
       await sendOrderStatusEmail(order);
     } catch (error) {
-      // فشل الإيميل لا يلغي تحديث الـ Order
+ 
       console.error(
         "Failed to send order status email:",
         error.message
@@ -467,7 +457,7 @@ export const getMyOrderById = async (req, res) => {
     const { orderId } = req.params;
     const userId = req.user._id;
 
-    const order = await Order.findById({
+    const order = await Order.findOne({
       _id:orderId,
       user: userId
     })

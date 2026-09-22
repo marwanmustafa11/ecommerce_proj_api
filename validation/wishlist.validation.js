@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-// التحقق إن الـ productId موجود وشكله MongoDB ObjectId صحيح
+ 
 const wishlistProductIdSchema = Joi.object({
     productId: Joi.string()
         .hex()
