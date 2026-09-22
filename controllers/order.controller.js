@@ -1,0 +1,498 @@
+import Order from "../models/Order.model.js";
+import Product from "../models/Product.model.js";
+import Cart from "../models/Cart.model.js";
+import mongoose from "mongoose";
+import stripe from "../config/stripe.js";
+
+import {
+  sendOrderConfirmationEmail,
+  sendOrderStatusEmail,
+} from "../utils/orderEmail.js";
+
+export const createOrder = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const userId = req.user._id;
+
+    const cart = await Cart.findOne({ user: userId }).session(session);
+
+    if (!cart) {
+      await session.abortTransaction();
+      session.endSession();
+
+      return res.status(404).json({
+        success: false,
+        message: "Cart not found",
+      });
+    }
+
+    if (cart.items.length === 0) {
+      await session.abortTransaction();
+      session.endSession();
+
+      return res.status(404).json({
+        success: false,
+        message: "Cart is empty",
+      });
+    }
+
+    const productIds = cart.items.map((item) => item.product);
+
+    const products = await Product.find({
+      _id: { $in: productIds },
+    }).session(session);
+
+    if (cart.items.length !== products.length) {
+      await session.abortTransaction();
+      session.endSession();
+
+      return res.status(404).json({
+        success: false,
+        message: "One or more products in the cart no longer exist",
+      });
+    }
+
+    for (const item of cart.items) {
+      const product = products.find((p) =>
+        p._id.equals(item.product)
+      );
+
+      if (!product || product.stock < item.quantity) {
+        await session.abortTransaction();
+        session.endSession();
+
+        return res.status(400).json({
+          success: false,
+          message: `Insufficient stock for product: ${
+            product ? product.name : "Unknown"
+          }`,
+        });
+      }
+    }
+
+    const items = cart.items.map((item) => {
+      const product = products.find((product) =>
+        product._id.equals(item.product)
+      );
+
+      return {
+        product: product._id,
+        name: product.name,
+        image: product.images[0]?.url || "",
+        price: product.price,
+        quantity: item.quantity,
+      };
+    });
+
+    const subtotal = cart.subtotal;
+    const discount = cart.discountAmount;
+    const taxableAmount = cart.total;
+
+    const shippingFee = subtotal > 1000 ? 0 : 50;
+
+    const tax = Number((taxableAmount * 0.14).toFixed(2));
+
+    const totalPrice = tax + taxableAmount + shippingFee;
+
+    const order = await Order.create(
+      [
+        {
+          user: userId,
+          items,
+          shippingAddress: req.body.shippingAddress,
+          paymentMethod: req.body.paymentMethod,
+          subtotal,
+          shippingFee,
+          tax,
+          discount,
+          totalPrice,
+          customerNote: req.body.customerNote,
+          status: "pending",
+        },
+      ],
+      { session }
+    );
+
+    for (const item of cart.items) {
+      await Product.findByIdAndUpdate(
+        item.product,
+        { $inc: { stock: -item.quantity } },
+        { session }
+      );
+    }
+
+    cart.items = [];
+    cart.coupon = undefined;
+
+    await cart.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    const orderWithUser = await Order.findById(order[0]._id)
+      .populate("user");
+
+    try {
+      await sendOrderConfirmationEmail(orderWithUser);
+    } catch (error) {
+      console.error(
+        "Failed to send order confirmation email:",
+        error.message
+      );
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Order created successfully",
+      order: order[0],
+    });
+
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid order data",
+        errors: Object.values(error.errors).map(
+          (err) => err.message
+        ),
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to create order",
+      error: error.message,
+    });
+  }
+};
+
+
+export const cancelOrder = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findOne({
+      _id: orderId,
+    }).populate("user","email").session(session);
+
+    if (!order) {
+      await session.abortTransaction();
+      session.endSession();
+
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (order.status === "cancelled") {
+      await session.abortTransaction();
+      session.endSession();
+
+      return res.status(400).json({
+        success: false,
+        message: "Order is already cancelled",
+      });
+    }
+
+    if (!["pending", "confirmed"].includes(order.status)) {
+      await session.abortTransaction();
+      session.endSession();
+
+      return res.status(400).json({
+        success: false,
+        message: `Order cannot be cancelled when status is ${order.status}`,
+      });
+    }
+
+    if (
+      order.paymentMethod === "stripe" &&
+      order.paymentStatus === "paid"
+    ) {
+      if (!order.stripePaymentIntentId) {
+        await session.abortTransaction();
+        session.endSession();
+
+        return res.status(400).json({
+          success: false,
+          message: "Cannot refund Stripe payment without a payment intent",
+        });
+      }
+
+      await stripe.refunds.create({
+        payment_intent: order.stripePaymentIntentId,
+      });
+
+      order.paymentStatus = "refunded";
+    }
+
+    for (const item of order.items) {
+      await Product.findByIdAndUpdate(
+        item.product,
+        { $inc: { stock: item.quantity } },
+        { session }
+      );
+    }
+
+    order.status = "cancelled";
+    order.cancelledAt = new Date();
+
+    await order.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    try {
+      await sendOrderStatusEmail(order);
+    } catch (error) {
+      console.error(
+        "Failed to send order cancellation email:",
+        error.message
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Order cancelled successfully and stock restored",
+      order,
+    });
+
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to cancel order",
+      error: error.message,
+    });
+  }
+};
+
+
+export const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate("user", "username email phone")
+      .populate("items.product")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: orders.length,
+      orders,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get orders",
+      error: error.message,
+    });
+  }
+};
+
+
+export const getOrderById = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId)
+      .populate("user", "username email phone")
+      .populate("items.product");
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      order,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get order",
+      error: error.message,
+    });
+  }
+};
+
+
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    const order = await Order.findById(orderId)
+      .populate("user");
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    const currentStatus = order.status;
+
+    if (currentStatus === status) {
+      return res.status(400).json({
+        success: false,
+        message: `Order is already ${status}`,
+      });
+    }
+
+    const allowedTransitions = {
+      pending: ["confirmed"],
+      confirmed: ["processing"],
+      processing: ["shipped"],
+      shipped: ["delivered"],
+      delivered: ["returned"],
+      cancelled: [],
+      returned: [],
+    };
+
+    if (
+      !allowedTransitions[currentStatus] ||
+      !allowedTransitions[currentStatus].includes(status)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot change order status from ${currentStatus} to ${status}`,
+      });
+    }
+
+    order.status = status;
+
+    if (status === "delivered") {
+      order.deliveredAt = new Date();
+    }
+
+    await order.save();
+
+    const emailStatuses = [
+      "confirmed",
+      "shipped",
+      "delivered",
+      "cancelled",
+      "returned",
+    ];
+
+    if (emailStatuses.includes(status)) {
+      try {
+        await sendOrderStatusEmail(order);
+      } catch (error) {
+        console.error(
+          "Failed to send order status email:",
+          error.message
+        );
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Order status updated from ${currentStatus} to ${status}`,
+      order,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update order status",
+      error: error.message,
+    });
+  }
+};
+
+
+export const getMyOrders = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const page = Math.max(Number(req.query.page) || 1, 1);
+
+    const limit = Math.min(
+      Math.max(Number(req.query.limit) || 10, 1),
+      100
+    );
+
+    const skip = (page - 1) * limit;
+
+    const filter = {
+      user: userId,
+    };
+
+    if (req.query.status) {
+      filter.status = req.query.status;
+    }
+
+    const total = await Order.countDocuments(filter);
+
+    const orders = await Order.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip(skip);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return res.status(200).json({
+      success: true,
+      total,
+      currentPage: page,
+      totalPages,
+      orders,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get orders",
+      error: error.message,
+    });
+  }
+};
+
+
+export const getMyOrderById = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const userId = req.user._id;
+
+    const order = await Order.findOne({
+      _id: orderId,
+      user: userId,
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      order,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get order",
+      error: error.message,
+    });
+  }
+};

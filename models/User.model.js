@@ -1,12 +1,93 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose" ;
+import validator from "validator"
+import bcrypt from "bcrypt"
 
 const userSchema = new mongoose.Schema({
-    name: String,
-    email: String
+    username:{
+        type:String,
+        required:[true , "Username is required"],
+        trim:true,
+
+    },
+    email:{
+        type:String,
+        required:[true , "Email is required"],
+        trim:true,
+        unique:true,
+        lowercase:true,
+        validate(val){
+            if(!validator.isEmail(val))
+                throw new Error("Email is Invalid ")
+        }
+
+    },
+    password:{
+        type:String,
+        required:[true , "password is required"],
+        select:false,
+        validate(value)
+        {
+            let passwordRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
+            if(!passwordRegex.test(value))
+            {
+                throw new Error("Password must include uppercase , lowercase , numbers , speacial characters")
+            }
+        }
+    },
+    phone:{
+        type:String,
+        trim:true ,
+        default:"",
+    },
+    avatar:{
+        type:String,
+        default: "https://i.pinimg.com/736x/99/cc/be/99ccbe55629e4148de5f41d50fe6a028.jpg"
+    },
+    role:{
+        type:String,
+        enum:["admin" , "customer"],
+        default:"customer"
+    },
+    addresses:[{
+        country:String,
+        city:String,
+        street:String,
+        building:String,
+        postalCode:String,
+    }],
+    wishlist:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Product" 
+        
+    }],
+    isVerified:{
+        type:Boolean ,
+        default:false
+    },
+    resetPasswordToken:{
+        type:String ,
+         
+    },
+    resetPasswordExpire:{
+        type:Date ,
+       
+    }
 }, {
-    collection: 'User'
+    collection: 'User',
+    timestamps: true
 });
 
-const User = mongoose.model('User', userSchema);
+userSchema.pre('save' , async function () {
+    
+    if (!this.isModified('password')) return  
+    this.password = await bcrypt.hash(this.password, 10);
+})
 
-module.exports = User;
+userSchema.methods.comparePassword= async function (enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password)
+    
+} 
+
+
+const User = mongoose.model('User', userSchema);
+export default User;
