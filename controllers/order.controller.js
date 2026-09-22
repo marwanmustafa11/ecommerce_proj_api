@@ -2,6 +2,7 @@ import Order from "../models/Order.model.js";
 import Product from "../models/Product.model.js";
 import Cart from "../models/Cart.model.js";
 import mongoose from "mongoose";
+import stripe from "../config/stripe.js";
 
 import {
   sendOrderConfirmationEmail,
@@ -226,6 +227,24 @@ export const cancelOrder = async (req, res) => {
       });
     }
 
+    if (order.paymentMethod === "stripe" && order.paymentStatus === "paid") {
+      if (!order.stripePaymentIntentId) {
+        await session.abortTransaction();
+        session.endSession();
+
+        return res.status(400).json({
+          success: false,
+          message: "Cannot refund Stripe payment without a payment intent",
+        });
+      }
+
+      await stripe.refunds.create({
+        payment_intent: order.stripePaymentIntentId,
+      });
+
+      order.paymentStatus = "refunded";
+    }
+
     // استرجاع الـ stock
     for (const item of order.items) {
       await Product.findByIdAndUpdate(
@@ -237,7 +256,6 @@ export const cancelOrder = async (req, res) => {
 
     // تغيير حالة الـ Order
     order.status = "cancelled";
-    order.paymentStatus ="cancelled";
     order.cancelledAt = new Date();
 
     await order.save({ session });
