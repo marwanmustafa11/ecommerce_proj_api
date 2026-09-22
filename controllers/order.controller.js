@@ -181,7 +181,7 @@ export const cancelOrder = async (req, res) => {
 
     const order = await Order.findOne({
       _id: orderId,
-    }).session(session);
+    }).populate("user","email").session(session);
 
     if (!order) {
       await session.abortTransaction();
