@@ -64,7 +64,7 @@ app.use("/auth", authRoutes);
 app.use("/auth", verifyOtpRouter);
 app.use("/auth", logoutRouter);
 
-app.use('/carts',cartRoutes)
+app.use('/carts',cartRoutes);
 
 app.use("/products", routerProduct);
 app.use("/auth", changePasswordRouter);

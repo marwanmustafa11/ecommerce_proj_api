@@ -6,7 +6,10 @@ import {
   getProductById,
   updateProduct,
   searchProducts,
-  deleteProduct
+  addReview,
+  getProductReviews,
+  deleteReview,
+  deleteProduct,
 } from "../controllers/product.controller.js";
 
 import { protect } from "../middleware/auth.middleware.js";
@@ -17,6 +20,8 @@ import upload from "../middleware/upload.middleware.js";
 import {
   validate,
   validateSearchProducts,
+  validateAddReview,
+  validateReviewParams,
 } from "../middleware/validate.js";
 
 import {
@@ -26,36 +31,56 @@ import {
 
 const routerProduct = express.Router();
 
-// Get All Products
 routerProduct.get("/", getAllProducts);
 
 routerProduct.get("/search", validateSearchProducts, searchProducts);
 
-// Get Product By ID
+
+routerProduct.post(
+  "/:id/reviews",
+  protect,
+  validateReviewParams,
+  validateAddReview,
+  addReview
+);
+
+routerProduct.get(
+  "/:id/reviews",
+  validateReviewParams,
+  getProductReviews
+);
+
+routerProduct.delete(
+  "/:id/reviews/:rid",
+  protect,
+  validateReviewParams,
+  deleteReview
+);
+
+
 routerProduct.get("/:id", getProductById);
 
 
-// Create Product
 routerProduct.post(
   "/",
   protect,
   adminOnly,
   upload.array("images", 10),
   validate(createProductValidation),
-  createProduct,
+  createProduct
 );
 
-// Update Product
+
 routerProduct.put(
   "/update/:id",
   protect,
   adminOnly,
   upload.array("images", 10),
   validate(updateProductValidation),
-  updateProduct,
+  updateProduct
 );
 
-// Delete Product
+
 routerProduct.delete(
   "/:id",
   protect,

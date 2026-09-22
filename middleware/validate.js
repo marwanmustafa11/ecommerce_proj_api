@@ -21,6 +21,10 @@ import {
   orderIdSchema,
   updateOrderStatusSchema,
 } from "../validation/order.validation.js";
+import {
+  addReviewSchema,
+  reviewParamsSchema,
+} from "../validation/review.validation.js";
 
 export const validate = (schema, source = "body") => {
   return (req, res, next) => {
@@ -56,3 +60,5 @@ export const validateWishlistProductId = validate(wishlistProductIdSchema,"param
 export const validateOrderId = validate(orderIdSchema, "params");
 export const validateUserId = validate(userIdSchema, "params");
 export const validateSearchProducts = validate(searchProductsSchema,"query");
+export const validateAddReview = validate(addReviewSchema);
+export const validateReviewParams = validate(reviewParamsSchema, "params");
