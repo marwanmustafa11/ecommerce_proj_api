@@ -249,7 +249,6 @@ const addReview = async (req, res) => {
 
     const product = await Product.findById(productId);
 
-const deleteProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({
         success: false,
@@ -431,7 +430,8 @@ export {
   getProductById, 
   updateProduct, 
   searchProducts, 
+  addReview,
+  getProductReviews,
+  deleteReview,
   deleteProduct 
 };
-export { createProduct, getAllProducts, getProductById, updateProduct, searchProducts,addReview,getProductReviews, deleteReview, deleteProduct };
-
