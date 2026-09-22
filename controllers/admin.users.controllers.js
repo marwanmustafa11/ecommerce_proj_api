@@ -202,3 +202,9 @@ export const getTopWishlistedProducts = async (req, res) => {
     });
   }
 };
+export const adminTest=(req,res)=>{
+  res.status(200).json({
+    "status":true,
+    "message":"Welcom Admin"
+  })
+}
