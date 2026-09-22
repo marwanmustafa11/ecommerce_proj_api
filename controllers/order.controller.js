@@ -2,14 +2,13 @@ import Order from "../models/Order.model.js";
 import Product from "../models/Product.model.js";
 import Cart from "../models/Cart.model.js";
 import mongoose from "mongoose";
+import stripe from "../config/stripe.js";
 
 import {
   sendOrderConfirmationEmail,
   sendOrderStatusEmail,
 } from "../utils/orderEmail.js";
 
-
- 
 export const createOrder = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -116,7 +115,6 @@ export const createOrder = async (req, res) => {
       { session }
     );
 
- 
     for (const item of cart.items) {
       await Product.findByIdAndUpdate(
         item.product,
@@ -125,17 +123,14 @@ export const createOrder = async (req, res) => {
       );
     }
 
- 
     cart.items = [];
     cart.coupon = undefined;
 
     await cart.save({ session });
 
- 
     await session.commitTransaction();
     session.endSession();
 
- 
     const orderWithUser = await Order.findById(order[0]._id)
       .populate("user");
 
@@ -177,7 +172,6 @@ export const createOrder = async (req, res) => {
 };
 
 
- 
 export const cancelOrder = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -219,7 +213,27 @@ export const cancelOrder = async (req, res) => {
       });
     }
 
- 
+    if (
+      order.paymentMethod === "stripe" &&
+      order.paymentStatus === "paid"
+    ) {
+      if (!order.stripePaymentIntentId) {
+        await session.abortTransaction();
+        session.endSession();
+
+        return res.status(400).json({
+          success: false,
+          message: "Cannot refund Stripe payment without a payment intent",
+        });
+      }
+
+      await stripe.refunds.create({
+        payment_intent: order.stripePaymentIntentId,
+      });
+
+      order.paymentStatus = "refunded";
+    }
+
     for (const item of order.items) {
       await Product.findByIdAndUpdate(
         item.product,
@@ -235,6 +249,15 @@ export const cancelOrder = async (req, res) => {
 
     await session.commitTransaction();
     session.endSession();
+
+    try {
+      await sendOrderStatusEmail(order);
+    } catch (error) {
+      console.error(
+        "Failed to send order cancellation email:",
+        error.message
+      );
+    }
 
     return res.status(200).json({
       success: true,
@@ -254,7 +277,7 @@ export const cancelOrder = async (req, res) => {
   }
 };
 
- 
+
 export const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
@@ -278,7 +301,6 @@ export const getAllOrders = async (req, res) => {
 };
 
 
- 
 export const getOrderById = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -308,13 +330,12 @@ export const getOrderById = async (req, res) => {
   }
 };
 
- 
+
 export const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { status } = req.body;
 
- 
     const order = await Order.findById(orderId)
       .populate("user");
 
@@ -327,14 +348,13 @@ export const updateOrderStatus = async (req, res) => {
 
     const currentStatus = order.status;
 
-   
     if (currentStatus === status) {
       return res.status(400).json({
         success: false,
         message: `Order is already ${status}`,
       });
     }
- 
+
     const allowedTransitions = {
       pending: ["confirmed"],
       confirmed: ["processing"],
@@ -345,32 +365,41 @@ export const updateOrderStatus = async (req, res) => {
       returned: [],
     };
 
-   
-    if (!allowedTransitions[currentStatus].includes(status)) {
+    if (
+      !allowedTransitions[currentStatus] ||
+      !allowedTransitions[currentStatus].includes(status)
+    ) {
       return res.status(400).json({
         success: false,
         message: `Cannot change order status from ${currentStatus} to ${status}`,
       });
     }
 
-  
     order.status = status;
 
- 
     if (status === "delivered") {
       order.deliveredAt = new Date();
     }
 
     await order.save();
- 
+
+    const emailStatuses = [
+      "confirmed",
+      "shipped",
+      "delivered",
+      "cancelled",
+      "returned",
+    ];
+
+    if (emailStatuses.includes(status)) {
       try {
-      await sendOrderStatusEmail(order);
-    } catch (error) {
- 
-      console.error(
-        "Failed to send order status email:",
-        error.message
-      );
+        await sendOrderStatusEmail(order);
+      } catch (error) {
+        console.error(
+          "Failed to send order status email:",
+          error.message
+        );
+      }
     }
 
     return res.status(200).json({
@@ -391,36 +420,40 @@ export const updateOrderStatus = async (req, res) => {
 
 export const getMyOrders = async (req, res) => {
   try {
-    const userId=req.user._id
+    const userId = req.user._id;
 
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
-    const skip = (page-1)*limit;
+    const page = Math.max(Number(req.query.page) || 1, 1);
+
+    const limit = Math.min(
+      Math.max(Number(req.query.limit) || 10, 1),
+      100
+    );
+
+    const skip = (page - 1) * limit;
 
     const filter = {
       user: userId,
+    };
+
+    if (req.query.status) {
+      filter.status = req.query.status;
     }
 
-    if(req.query.status){
-      filter.status = req.query.status
-    }
-
-    const total = await Order.countDocuments(filter)
-
+    const total = await Order.countDocuments(filter);
 
     const orders = await Order.find(filter)
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(skip);
 
-    const totalPages= Math.ceil(total / limit)
+    const totalPages = Math.ceil(total / limit);
 
     return res.status(200).json({
       success: true,
       total,
-      currentPage:page,
+      currentPage: page,
       totalPages,
-      orders
+      orders,
     });
 
   } catch (error) {
@@ -432,16 +465,16 @@ export const getMyOrders = async (req, res) => {
   }
 };
 
+
 export const getMyOrderById = async (req, res) => {
   try {
     const { orderId } = req.params;
     const userId = req.user._id;
 
     const order = await Order.findOne({
-      _id:orderId,
-      user: userId
-    })
- 
+      _id: orderId,
+      user: userId,
+    });
 
     if (!order) {
       return res.status(404).json({
@@ -463,5 +496,3 @@ export const getMyOrderById = async (req, res) => {
     });
   }
 };
-
-
